@@ -24,17 +24,20 @@
         
         table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; margin-top: 15px; }
         th { background: #f8fafc; text-align: left; padding: 15px; font-size: 11px; color: #94a3b8; text-transform: uppercase; }
-        td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 14px; }
+        td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 14px; vertical-align: middle; }
         
+        .img-preview { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; border: 1px solid #eee; display: block; }
         .saldo-negativo { color: #ef4444; font-weight: bold; }
         .saldo-pago { color: #10b981; font-weight: bold; }
 
         .footer-total { background: var(--dark); color: white; padding: 25px; border-radius: 12px; margin-top: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
         .total-group { display: flex; gap: 30px; flex-wrap: wrap; }
         .total-item { text-align: left; }
-        .total-label { display: block; font-size: 10px; color: #94a3b8; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
+        .total-label { display: block; font-size: 10px; color: #94a3b8; margin-bottom: 5px; text-transform: uppercase; }
         .total-value { font-size: 26px; font-weight: 800; color: var(--primary); }
         .btn-pdf { padding: 15px 30px; background: var(--primary); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; }
+        
+        .input-file-custom { font-size: 12px; margin-top: 5px; color: #666; }
     </style>
 </head>
 <body>
@@ -42,7 +45,7 @@
 <div id="tela-de-login">
     <div class="login-box">
         <h2>FINANCEIRO VÍDEOS</h2>
-        <p style="font-size: 10px; color: #666; margin-bottom: 20px;">CONTROLE DE PARCERIA</p>
+        <p style="font-size: 10px; color: #666; margin-bottom: 20px;">CONTROLE DE PARCERIA + ARTES</p>
         <input type="password" id="input-chave" placeholder="Digite sua chave">
         <button class="btn-entrar" onclick="verificarChave()">Acessar Painel</button>
     </div>
@@ -60,10 +63,14 @@
 
     <div class="container">
         <div class="card">
-            <h3>Novo Lançamento</h3>
-            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px;">
-                <input type="text" id="desc" placeholder="Ex: Clipe Ted Pagodeiro">
-                <input type="number" id="v-total" placeholder="Valor do Job (R$)">
+            <h3>Novo Lançamento com Arte</h3>
+            <div style="display: grid; grid-template-columns: 1fr 2fr 1fr 1fr; gap: 10px; align-items: end;">
+                <div>
+                    <label class="total-label">Thumbnail</label>
+                    <input type="file" id="v-img" class="input-file-custom" accept="image/*">
+                </div>
+                <input type="text" id="desc" placeholder="Descrição do Vídeo">
+                <input type="number" id="v-total" placeholder="Valor Total (R$)">
                 <input type="number" id="v-pago" placeholder="Já Recebido (R$)">
             </div>
             <button class="btn-entrar" style="margin-top: 15px;" onclick="adicionarLinha()">Adicionar à Lista</button>
@@ -73,8 +80,9 @@
             <table>
                 <thead>
                     <tr>
+                        <th>Arte</th>
                         <th>Data</th>
-                        <th>Descrição do Vídeo</th>
+                        <th>Descrição</th>
                         <th>Total (R$)</th>
                         <th>Pago (R$)</th>
                         <th>Saldo</th>
@@ -88,15 +96,15 @@
         <div class="footer-total">
             <div class="total-group">
                 <div class="total-item">
-                    <span class="total-label">Total Acumulado</span>
+                    <span class="total-label">Trabalhado</span>
                     <span id="resumo-total" class="total-value">R$ 0,00</span>
                 </div>
                 <div class="total-item">
-                    <span class="total-label">Total Recebido</span>
+                    <span class="total-label">Em Caixa</span>
                     <span id="resumo-pago" class="total-value" style="color: #fff;">R$ 0,00</span>
                 </div>
                 <div class="total-item" style="border-left: 1px solid #333; padding-left: 30px;">
-                    <span class="total-label">Falta Receber</span>
+                    <span class="total-label">A Receber</span>
                     <span id="resumo-pendente" class="total-value" style="color: #ef4444;">R$ 0,00</span>
                 </div>
             </div>
@@ -106,7 +114,7 @@
 </div>
 
 <script>
-    let dados = JSON.parse(localStorage.getItem('financeiro_v2')) || [];
+    let dados = JSON.parse(localStorage.getItem('financeiro_v3')) || [];
 
     function verificarChave() {
         if(document.getElementById('input-chave').value === '2026') {
@@ -121,14 +129,28 @@
         const desc = document.getElementById('desc').value;
         const total = parseFloat(document.getElementById('v-total').value) || 0;
         const pago = parseFloat(document.getElementById('v-pago').value) || 0;
-        
+        const fileInput = document.getElementById('v-img');
+
         if(!desc) return alert('Descreva o serviço!');
 
-        dados.push({ id: Date.now(), data: new Date().toLocaleDateString('pt-BR'), desc, total, pago });
+        if (fileInput.files && fileInput.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                salvarDados(e.target.result, desc, total, pago);
+            };
+            reader.readAsDataURL(fileInput.files[0]);
+        } else {
+            salvarDados('', desc, total, pago);
+        }
+    }
+
+    function salvarDados(img, desc, total, pago) {
+        dados.push({ id: Date.now(), data: new Date().toLocaleDateString('pt-BR'), img, desc, total, pago });
         salvarEAtualizar();
         document.getElementById('desc').value = '';
         document.getElementById('v-total').value = '';
         document.getElementById('v-pago').value = '';
+        document.getElementById('v-img').value = '';
     }
 
     function renderizarTabela() {
@@ -140,11 +162,13 @@
             const saldo = item.total - item.pago;
             somaTotal += item.total;
             somaPago += item.pago;
+            const imgHtml = item.img ? `<img src="${item.img}" class="img-preview">` : `<div style="width:60px;height:60px;background:#eee;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#999">N/A</div>`;
 
             corpo.innerHTML += `
                 <tr>
+                    <td>${imgHtml}</td>
                     <td>${item.data}</td>
-                    <td>${item.desc}</td>
+                    <td style="font-weight:600">${item.desc}</td>
                     <td>R$ ${item.total.toFixed(2)}</td>
                     <td>R$ ${item.pago.toFixed(2)}</td>
                     <td class="${saldo > 0 ? 'saldo-negativo' : 'saldo-pago'}">
@@ -168,7 +192,7 @@
     }
 
     function salvarEAtualizar() {
-        localStorage.setItem('financeiro_v2', JSON.stringify(dados));
+        localStorage.setItem('financeiro_v3', JSON.stringify(dados));
         renderizarTabela();
     }
 
