@@ -19,7 +19,6 @@
         .header-banner { width: 100%; height: 280px; background-position: center; background-size: cover; border-bottom: 4px solid var(--primary); margin-bottom: 20px; }
         .container { max-width: 1100px; margin: 0 auto; }
 
-        /* MESES NO TOPO */
         .meses-container { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 20px; scrollbar-width: thin; }
         .mes-card { min-width: 150px; background: var(--dark); color: white; padding: 15px; border-radius: 12px; text-align: center; cursor: pointer; border: 2px solid transparent; flex-shrink: 0; transition: 0.3s; }
         .mes-card.active { border-color: var(--primary); transform: translateY(-3px); }
@@ -35,7 +34,6 @@
         .btn-qty { background: #f1f1f1; border: none; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; font-weight: bold; }
         .qty-num { margin: 0 12px; font-weight: bold; }
 
-        /* RODAPÉ COM OS 3 CONTADORES */
         .footer-total { background: var(--dark); color: white; padding: 25px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
         .total-item { text-align: left; margin-right: 40px; }
         .total-label { display: block; font-size: 10px; color: #94a3b8; text-transform: uppercase; margin-bottom: 5px; }
@@ -66,13 +64,13 @@
             <div class="meses-container" id="carrossel"></div>
 
             <div class="card">
-                <h3 style="margin-top:0; font-size: 14px; color: var(--primary);">NOVO LANÇAMENTO - <span id="txt-mes"></span></h3>
+                <h3 style="margin-top:0; font-size: 14px; color: var(--primary);">LANÇAR NOVO VÍDEO - <span id="txt-mes"></span></h3>
                 <div style="display: grid; grid-template-columns: 1fr 2fr 1fr 1fr; gap: 12px; align-items: end;">
                     <div>
                         <label style="font-size: 10px; font-weight: bold;">ARTE</label>
                         <input type="file" id="foto" style="font-size:10px; width: 100%;">
                     </div>
-                    <input type="text" id="nome" placeholder="Descrição do Vídeo" style="padding:12px; border-radius:8px; border:1px solid #ddd; font-weight: bold;">
+                    <input type="text" id="nome" placeholder="Nome do Vídeo" style="padding:12px; border-radius:8px; border:1px solid #ddd; font-weight: bold;">
                     <input type="number" id="valor" placeholder="R$ Unitário" style="padding:12px; border-radius:8px; border:1px solid #ddd;">
                     <input type="number" id="qtd" value="1" style="padding:12px; border-radius:8px; border:1px solid #ddd; text-align: center;">
                 </div>
@@ -89,7 +87,7 @@
                         <tr>
                             <th>Arte</th>
                             <th>Descrição</th>
-                            <th style="text-align: center;">Quantidade</th>
+                            <th style="text-align: center;">Qtd</th>
                             <th>Subtotal</th>
                             <th>Ação</th>
                         </tr>
@@ -103,7 +101,7 @@
                             <p class="total-valor" id="total-geral"></p>
                         </div>
                         <div class="total-item">
-                            <span class="total-label">Em Caixa</span>
+                            <span class="total-label">Recebido</span>
                             <p class="total-valor" id="total-recebido" style="color: white;"></p>
                         </div>
                         <div class="total-item" style="border-left: 1px solid #333; padding-left: 30px;">
@@ -121,7 +119,7 @@
 <script>
     const CHAVE_MESTRA = "2026"; 
     const mesesNomes = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-    let db = JSON.parse(localStorage.getItem('faturas_vParceria_Final')) || [];
+    let db = JSON.parse(localStorage.getItem('faturas_parceria_v6')) || [];
     let mesAtivo = new Date().getMonth();
 
     function login() {
@@ -129,7 +127,7 @@
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('main-system').style.display = 'block';
             render();
-        } else { alert("Chave incorreta!"); }
+        } else { alert("Senha incorreta!"); }
     }
 
     function processarVisual(tipo, input) {
@@ -150,7 +148,7 @@
         const car = document.getElementById('carrossel'); car.innerHTML = '';
         mesesNomes.forEach((m, i) => {
             const itens = db.filter(d => parseInt(d.mes) === i);
-            const total = itens.reduce((acc, cur) => acc + (cur.qtd * cur.valor), 0);
+            const total = itens.reduce((acc, cur) => acc + (cur.qty * cur.valor), 0);
             car.innerHTML += `<div class="mes-card ${i==mesAtivo?'active':''}" onclick="mudarMes(${i})">
                 <span>Mês de</span><strong>${m}</strong><span class="valor-mes">R$ ${total.toFixed(2)}</span></div>`;
         });
@@ -161,7 +159,7 @@
         let sTotal = 0, sRecebido = 0;
         
         db.filter(d => parseInt(d.mes) === mesAtivo).forEach(d => {
-            let totalJob = d.qtd * d.valor;
+            let totalJob = d.qty * d.valor;
             sTotal += totalJob;
             sRecebido += d.pago;
             
@@ -174,7 +172,7 @@
                     <button class="btn-qty" onclick="ajustarQtd(${d.id}, 1)">+</button>
                 </td>
                 <td><strong>R$ ${totalJob.toFixed(2)}</strong></td>
-                <td><button onclick="excluir(${d.id})" style="border:none; background:none; color:#ccc; cursor:pointer">✕ Remover</button></td>
+                <td><button onclick="excluir(${d.id})" style="border:none; background:none; color:#ccc; cursor:pointer">✕</button></td>
             </tr>`;
         });
         
@@ -187,7 +185,7 @@
         const item = db.find(d => d.id === id);
         if (item) {
             item.qty = Math.max(1, item.qty + delta);
-            localStorage.setItem('faturas_vParceria_Final', JSON.stringify(db));
+            localStorage.setItem('faturas_parceria_v6', JSON.stringify(db));
             render();
         }
     }
@@ -203,7 +201,7 @@
 
         const add = (img) => {
             db.push({ id: Date.now(), nome: n.toUpperCase(), qty: q, valor: v, pago: p, mes: mesAtivo, foto: img });
-            localStorage.setItem('faturas_vParceria_Final', JSON.stringify(db));
+            localStorage.setItem('faturas_parceria_v6', JSON.stringify(db));
             document.getElementById('nome').value = '';
             document.getElementById('valor').value = '';
             document.getElementById('recebido').value = '';
@@ -226,7 +224,7 @@
     }
 
     function mudarMes(i) { mesAtivo = i; render(); }
-    function excluir(id) { if(confirm("Remover?")) { db = db.filter(d => d.id !== id); localStorage.setItem('faturas_vParceria_Final', JSON.stringify(db)); render(); } }
+    function excluir(id) { if(confirm("Remover?")) { db = db.filter(d => d.id !== id); localStorage.setItem('faturas_parceria_v6', JSON.stringify(db)); render(); } }
     function limparTudo() { if(confirm("Apagar TUDO?")) { db = []; localStorage.clear(); location.reload(); } }
 </script>
 </body>
