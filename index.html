@@ -55,7 +55,7 @@
                 <div style="display: grid; grid-template-columns: 1fr 2fr 1fr 1fr; gap: 12px; align-items: end;">
                     <div><label style="font-size: 10px; font-weight: bold;">ARTE</label><input type="file" id="foto" style="font-size:10px; width: 100%;"></div>
                     <input type="text" id="nome" placeholder="Nome do Vídeo" style="padding:12px; border-radius:8px; border:1px solid #ddd; font-weight: bold;">
-                    <input type="number" id="valor" placeholder="R$ Unitário" style="padding:12px; border-radius:8px; border:1px solid #ddd; font-weight: bold; color: var(--primary);">
+                    <input type="number" id="valor" placeholder="R$ Unitário" style="padding:12px; border-radius:8px; border:1px solid #ddd;">
                     <input type="number" id="qtd" value="1" style="padding:12px; border-radius:8px; border:1px solid #ddd; text-align: center;">
                 </div>
                 <button class="btn-entrar" style="margin-top:20px;" onclick="salvar()">ADICIONAR À LISTA</button>
@@ -63,16 +63,7 @@
 
             <div class="card" style="padding:0; overflow: hidden;">
                 <table>
-                    <thead>
-                        <tr>
-                            <th>Arte</th>
-                            <th>Descrição</th>
-                            <th>Valor Unitário</th>
-                            <th style="text-align: center;">Quantidade</th>
-                            <th>Subtotal</th>
-                            <th>Ação</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Arte</th><th>Descrição</th><th style="text-align: center;">Qtd</th><th>Subtotal</th><th>Ação</th></tr></thead>
                     <tbody id="lista"></tbody>
                 </table>
                 <div class="footer-total">
@@ -136,19 +127,7 @@
         
         db.filter(d => parseInt(d.mes) === mesAtivo).forEach(d => {
             let totalJob = d.qty * d.valor; sTotal += totalJob;
-            list.innerHTML += `
-                <tr>
-                    <td><img src="${d.foto||''}" class="img-preview" style="display:${d.foto?'block':'none'}"></td>
-                    <td><strong>${d.nome}</strong></td>
-                    <td>R$ ${d.valor.toFixed(2)}</td>
-                    <td style="text-align:center;">
-                        <button class="btn-qty" onclick="ajustarQtd(${d.id},-1)">-</button>
-                        <span style="margin:0 10px">${d.qty}</span>
-                        <button class="btn-qty" onclick="ajustarQtd(${d.id},1)">+</button>
-                    </td>
-                    <td><strong>R$ ${totalJob.toFixed(2)}</strong></td>
-                    <td><button onclick="excluir(${d.id})" style="border:none;background:none;color:#ccc;cursor:pointer">✕</button></td>
-                </tr>`;
+            list.innerHTML += `<tr><td><img src="${d.foto||''}" class="img-preview" style="display:${d.foto?'block':'none'}"></td><td><strong>${d.nome}</strong><br><small>R$ ${d.valor.toFixed(2)}/un</small></td><td style="text-align:center;"><button class="btn-qty" onclick="ajustarQtd(${d.id},-1)">-</button><span style="margin:0 10px">${d.qty}</span><button class="btn-qty" onclick="ajustarQtd(${d.id},1)">+</button></td><td><strong>R$ ${totalJob.toFixed(2)}</strong></td><td><button onclick="excluir(${d.id})" style="border:none;background:none;color:#ccc;cursor:pointer">✕</button></td></tr>`;
         });
         
         document.getElementById('total-geral').innerText = `R$ ${sTotal.toFixed(2)}`;
@@ -157,7 +136,7 @@
     }
 
     function calcularSaldo() {
-        const trabalhado = parseFloat(document.getElementById('total-geral').innerText.replace('R$ ', '').replace('.','').replace(',','.')) || 0;
+        const trabalhado = parseFloat(document.getElementById('total-geral').innerText.replace('R$ ', '')) || 0;
         const recebido = parseFloat(document.getElementById('input-recebido').value) || 0;
         recebidosMensais[mesAtivo] = recebido;
         localStorage.setItem('recebidos_mes', JSON.stringify(recebidosMensais));
