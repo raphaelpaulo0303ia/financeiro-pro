@@ -6,7 +6,7 @@
     <title>Financeiro Vídeos</title>
     <style>
         :root { --primary: #00c897; --dark: rgba(18, 18, 18, 0.98); --card-bg: rgba(255, 255, 255, 0.98); }
-        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background-color: #000; background-attachment: fixed; background-position: center; background-repeat: no-repeat; background-size: cover; min-height: 100vh; transition: 0.5s; }
+        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background-color: #000; background-attachment: fixed; background-position: center; background-repeat: no-repeat; background-size: cover; min-height: 100vh; }
         
         #tela-de-login { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; color: white; }
         .login-box { background: var(--dark); padding: 40px; border-radius: 20px; border: 1px solid var(--primary); width: 320px; box-shadow: 0 0 20px rgba(0,200,151,0.2); }
@@ -17,27 +17,34 @@
         .config-btns { position: fixed; top: 10px; right: 10px; z-index: 1000; display: flex; gap: 8px; }
         .btn-config { background: #000; color: #fff; border: 1px solid var(--primary); padding: 8px 12px; border-radius: 6px; font-size: 10px; cursor: pointer; opacity: 0.7; }
         
-        .header-banner { width: 100%; height: 280px; background-position: center; background-repeat: no-repeat; background-size: cover; border-bottom: 4px solid var(--primary); margin-bottom: 20px; }
+        .header-banner { width: 100%; height: 280px; background-position: center; background-size: cover; border-bottom: 4px solid var(--primary); margin-bottom: 20px; }
         .container { max-width: 1200px; margin: 0 auto; }
 
-        .card { background: var(--card-bg); padding: 25px; border-radius: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); margin-bottom: 25px; }
+        /* NAVEGAÇÃO POR MESES */
+        .meses-container { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 20px; scrollbar-width: thin; }
+        .mes-card { min-width: 140px; background: var(--dark); color: white; padding: 15px; border-radius: 12px; text-align: center; cursor: pointer; border: 2px solid transparent; transition: 0.3s; flex-shrink: 0; }
+        .mes-card.active { border-color: var(--primary); transform: translateY(-3px); }
+        .mes-card span { display: block; font-size: 10px; color: #94a3b8; margin-bottom: 5px; text-transform: uppercase; }
+        .mes-card strong { font-size: 16px; }
+
+        .card { background: var(--card-bg); padding: 25px; border-radius: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); margin-bottom: 25px; color: #333; }
         
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; margin-top: 15px; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; }
         th { background: #f8fafc; text-align: left; padding: 15px; font-size: 11px; color: #94a3b8; text-transform: uppercase; }
         td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 14px; vertical-align: middle; }
         
-        .img-preview { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; border: 1px solid #eee; }
-        .qty-controls { display: flex; align-items: center; gap: 10px; }
-        .btn-qty { width: 25px; height: 25px; border-radius: 50%; border: 1px solid #ddd; background: #f8fafc; cursor: pointer; font-weight: bold; }
+        .img-preview { width: 55px; height: 55px; border-radius: 8px; object-fit: cover; border: 1px solid #eee; }
+        .qty-controls { display: flex; align-items: center; gap: 8px; }
+        .btn-qty { width: 22px; height: 22px; border-radius: 50%; border: 1px solid #ddd; background: #fff; cursor: pointer; font-weight: bold; }
         
         .saldo-negativo { color: #ef4444; font-weight: bold; }
         .saldo-pago { color: #10b981; font-weight: bold; }
 
-        .footer-total { background: var(--dark); color: white; padding: 25px; border-radius: 12px; margin-top: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
-        .total-group { display: flex; gap: 30px; flex-wrap: wrap; }
+        .footer-total { background: var(--dark); color: white; padding: 25px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+        .total-group { display: flex; gap: 35px; }
         .total-item { text-align: left; }
         .total-label { display: block; font-size: 10px; color: #94a3b8; margin-bottom: 5px; text-transform: uppercase; }
-        .total-value { font-size: 26px; font-weight: 800; color: var(--primary); }
+        .total-value { font-size: 24px; font-weight: 800; color: var(--primary); }
     </style>
 </head>
 <body>
@@ -45,9 +52,8 @@
 <div id="tela-de-login">
     <div class="login-box">
         <h2>FINANCEIRO VÍDEOS</h2>
-        <p style="font-size: 10px; color: #666; margin-bottom: 20px;">CONTROLE COMPLETO</p>
         <input type="password" id="input-chave" placeholder="Digite sua chave">
-        <button class="btn-entrar" onclick="verificarChave()">Acessar Painel</button>
+        <button class="btn-entrar" onclick="verificarChave()">Entrar</button>
     </div>
 </div>
 
@@ -62,15 +68,17 @@
     <div class="header-banner" id="banner-topo"></div>
 
     <div class="container">
+        <div class="meses-container" id="meses-lista"></div>
+
         <div class="card">
-            <h3>Novo Lançamento</h3>
+            <h3>Novo Lançamento - <span id="mes-selecionado-texto">Mês</span></h3>
             <div style="display: grid; grid-template-columns: 1fr 2fr 1fr 1fr 1fr; gap: 10px; align-items: end;">
                 <div>
                     <label style="font-size: 10px; color: #666;">Arte</label>
                     <input type="file" id="v-img" accept="image/*" style="font-size: 10px;">
                 </div>
                 <input type="text" id="desc" placeholder="Descrição do Vídeo">
-                <input type="number" id="v-unit" placeholder="Valor Unitário (R$)">
+                <input type="number" id="v-unit" placeholder="R$ Unitário">
                 <input type="number" id="v-qty" placeholder="Qtd" value="1">
                 <input type="number" id="v-pago" placeholder="Já Pago (R$)">
             </div>
@@ -78,12 +86,12 @@
         </div>
 
         <div class="card" style="overflow-x: auto;">
-            <table>
+            <table id="tabela-contabilidade">
                 <thead>
                     <tr>
                         <th>Arte</th>
                         <th>Descrição</th>
-                        <th>Qtd</th>
+                        <th>Quantidade</th>
                         <th>Unitário</th>
                         <th>Total Job</th>
                         <th>Pago</th>
@@ -106,25 +114,50 @@
                     <span id="resumo-pago" class="total-value" style="color: #fff;">R$ 0,00</span>
                 </div>
                 <div class="total-item" style="border-left: 1px solid #333; padding-left: 30px;">
-                    <span class="total-label">Pendente</span>
+                    <span class="total-label">Falta Receber</span>
                     <span id="resumo-pendente" class="total-value" style="color: #ef4444;">R$ 0,00</span>
                 </div>
             </div>
-            <button class="btn-entrar" style="width: auto; padding: 10px 20px;" onclick="window.print()">GERAR RELATÓRIO</button>
+            <button class="btn-entrar" style="width: auto; padding: 10px 25px;" onclick="window.print()">GERAR PDF</button>
         </div>
     </div>
 </div>
 
 <script>
-    let dados = JSON.parse(localStorage.getItem('financeiro_v4')) || [];
+    const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+    let mesAtivo = meses[new Date().getMonth()];
+    let dados = JSON.parse(localStorage.getItem('financeiro_v5')) || {};
 
     function verificarChave() {
         if(document.getElementById('input-chave').value === '2026') {
             document.getElementById('tela-de-login').style.display = 'none';
             document.getElementById('main-system').style.display = 'block';
             carregarLayout();
+            renderizarMeses();
             renderizarTabela();
         } else { alert('Chave incorreta!'); }
+    }
+
+    function renderizarMeses() {
+        const container = document.getElementById('meses-lista');
+        container.innerHTML = '';
+        meses.forEach(mes => {
+            const totalMes = (dados[mes] || []).reduce((acc, item) => acc + (item.unit * item.qty), 0);
+            container.innerHTML += `
+                <div class="mes-card ${mes === mesAtivo ? 'active' : ''}" onclick="mudarMes('${mes}')">
+                    <span>Mês de</span>
+                    <strong>${mes}</strong>
+                    <div style="font-size:10px; color:var(--primary); margin-top:5px;">R$ ${totalMes.toFixed(2)}</div>
+                </div>
+            `;
+        });
+        document.getElementById('mes-selecionado-texto').innerText = mesAtivo;
+    }
+
+    function mudarMes(mes) {
+        mesAtivo = mes;
+        renderizarMeses();
+        renderizarTabela();
     }
 
     function adicionarLinha() {
@@ -134,21 +167,18 @@
         const pago = parseFloat(document.getElementById('v-pago').value) || 0;
         const fileInput = document.getElementById('v-img');
 
-        if(!desc) return alert('Descreva o serviço!');
+        if(!desc) return alert('Descreva o vídeo!');
 
         if (fileInput.files && fileInput.files[0]) {
             const reader = new FileReader();
-            reader.onload = function(e) {
-                salvarDados(e.target.result, desc, unit, qty, pago);
-            };
+            reader.onload = function(e) { salvar(e.target.result, desc, unit, qty, pago); };
             reader.readAsDataURL(fileInput.files[0]);
-        } else {
-            salvarDados('', desc, unit, qty, pago);
-        }
+        } else { salvar('', desc, unit, qty, pago); }
     }
 
-    function salvarDados(img, desc, unit, qty, pago) {
-        dados.push({ id: Date.now(), img, desc, unit, qty, pago });
+    function salvar(img, desc, unit, qty, pago) {
+        if(!dados[mesAtivo]) dados[mesAtivo] = [];
+        dados[mesAtivo].push({ id: Date.now(), img, desc, unit, qty, pago });
         salvarEAtualizar();
         document.getElementById('desc').value = '';
         document.getElementById('v-unit').value = '';
@@ -160,20 +190,19 @@
     function renderizarTabela() {
         const corpo = document.getElementById('corpo-tabela');
         corpo.innerHTML = '';
-        let somaTotalMes = 0, somaPagoMes = 0;
+        let sTotal = 0, sPago = 0;
+        const itens = dados[mesAtivo] || [];
 
-        dados.forEach(item => {
+        itens.forEach(item => {
             const totalLinha = item.unit * item.qty;
             const saldo = totalLinha - item.pago;
-            somaTotalMes += totalLinha;
-            somaPagoMes += item.pago;
-
-            const imgHtml = item.img ? `<img src="${item.img}" class="img-preview">` : `<div style="width:60px;height:60px;background:#eee;border-radius:8px;"></div>`;
+            sTotal += totalLinha;
+            sPago += item.pago;
 
             corpo.innerHTML += `
                 <tr>
-                    <td>${imgHtml}</td>
-                    <td>${item.desc}</td>
+                    <td><img src="${item.img || ''}" class="img-preview" style="display:${item.img ? 'block' : 'none'}"></td>
+                    <td><strong>${item.desc}</strong></td>
                     <td>
                         <div class="qty-controls">
                             <button class="btn-qty" onclick="alterarQtd(${item.id}, -1)">-</button>
@@ -184,54 +213,41 @@
                     <td>R$ ${item.unit.toFixed(2)}</td>
                     <td>R$ ${totalLinha.toFixed(2)}</td>
                     <td>R$ ${item.pago.toFixed(2)}</td>
-                    <td class="${saldo > 0 ? 'saldo-negativo' : 'saldo-pago'}">
-                        ${saldo <= 0 ? 'PAGO' : 'R$ ' + saldo.toFixed(2)}
-                    </td>
-                    <td><button onclick="remover(${item.id})" style="background:none; border:none; cursor:pointer;">❌</button></td>
+                    <td class="${saldo > 0 ? 'saldo-negativo' : 'saldo-pago'}">${saldo <= 0 ? 'PAGO' : 'R$ ' + saldo.toFixed(2)}</td>
+                    <td><button onclick="remover(${item.id})" style="border:none; background:none; cursor:pointer;">❌</button></td>
                 </tr>
             `;
         });
 
-        document.getElementById('resumo-total').innerText = `R$ ${somaTotalMes.toFixed(2)}`;
-        document.getElementById('resumo-pago').innerText = `R$ ${somaPagoMes.toFixed(2)}`;
-        document.getElementById('resumo-pendente').innerText = `R$ ${(somaTotalMes - somaPagoMes).toFixed(2)}`;
+        document.getElementById('resumo-total').innerText = `R$ ${sTotal.toFixed(2)}`;
+        document.getElementById('resumo-pago').innerText = `R$ ${sPago.toFixed(2)}`;
+        document.getElementById('resumo-pendente').innerText = `R$ ${(sTotal - sPago).toFixed(2)}`;
+        renderizarMeses();
     }
 
     function alterarQtd(id, delta) {
-        const item = dados.find(i => i.id === id);
-        if (item) {
-            item.qty = Math.max(0, item.qty + delta);
-            salvarEAtualizar();
-        }
+        const item = dados[mesAtivo].find(i => i.id === id);
+        if(item) { item.qty = Math.max(0, item.qty + delta); salvarEAtualizar(); }
     }
 
     function remover(id) {
-        if(confirm('Remover este item?')) {
-            dados = dados.filter(i => i.id !== id);
-            salvarEAtualizar();
-        }
+        if(confirm('Remover item?')) { dados[mesAtivo] = dados[mesAtivo].filter(i => i.id !== id); salvarEAtualizar(); }
     }
 
     function salvarEAtualizar() {
-        localStorage.setItem('financeiro_v4', JSON.stringify(dados));
+        localStorage.setItem('financeiro_v5', JSON.stringify(dados));
         renderizarTabela();
     }
 
     function mudarBanner(input) {
         const reader = new FileReader();
-        reader.onload = (e) => {
-            document.getElementById('banner-topo').style.backgroundImage = `url(${e.target.result})`;
-            localStorage.setItem('user_banner', e.target.result);
-        };
+        reader.onload = (e) => { document.getElementById('banner-topo').style.backgroundImage = `url(${e.target.result})`; localStorage.setItem('user_banner', e.target.result); };
         reader.readAsDataURL(input.files[0]);
     }
 
     function mudarFundo(input) {
         const reader = new FileReader();
-        reader.onload = (e) => {
-            document.body.style.backgroundImage = `url(${e.target.result})`;
-            localStorage.setItem('user_bg', e.target.result);
-        };
+        reader.onload = (e) => { document.body.style.backgroundImage = `url(${e.target.result})`; localStorage.setItem('user_bg', e.target.result); };
         reader.readAsDataURL(input.files[0]);
     }
 
