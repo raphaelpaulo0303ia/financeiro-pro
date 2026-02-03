@@ -48,10 +48,13 @@
 
     <div id="main-system">
         <div class="config-btns">
+            <button class="btn-config" onclick="exportarDados()">💾 BACKUP</button>
+            <button class="btn-config" onclick="document.getElementById('in-import').click()">📂 RESTAURAR</button>
             <button class="btn-config" onclick="document.getElementById('in-bg').click()">+ Fundo</button>
             <button class="btn-config" onclick="document.getElementById('in-bn').click()">+ Banner</button>
             <input type="file" id="in-bg" hidden onchange="processarVisual('bg', this)">
             <input type="file" id="in-bn" hidden onchange="processarVisual('bn', this)">
+            <input type="file" id="in-import" hidden onchange="importarDados(this)" accept=".json">
         </div>
         <div class="header-banner" id="banner-visual"></div>
         <div class="container">
@@ -117,13 +120,6 @@
         } else { alert("Senha incorreta!"); }
     }
 
-    function processarVisual(tipo, input) {
-        if(!input.files[0]) return;
-        const reader = new FileReader();
-        reader.onload = (e) => { localStorage.setItem(tipo === 'bg' ? 'custom_bg' : 'custom_bn', e.target.result); render(); };
-        reader.readAsDataURL(input.files[0]);
-    }
-
     function render() {
         const bg = localStorage.getItem('custom_bg'); const bn = localStorage.getItem('custom_bn');
         if(bg) document.body.style.backgroundImage = `url(${bg})`;
@@ -135,10 +131,7 @@
             const total = itens.reduce((acc, cur) => acc + (cur.qty * cur.valor), 0);
             car.innerHTML += `
                 <div class="mes-card ${i==mesAtivo?'active':''}" onclick="mudarMes(${i})">
-                    <span>Mês de</span>
-                    <br>
-                    <strong>${m}</strong>
-                    <br>
+                    <span>Mês de</span><br><strong>${m}</strong><br>
                     <span style="font-size:10px; color:var(--primary)">R$ ${total.toFixed(2)}</span>
                 </div>`;
         });
@@ -177,6 +170,30 @@
         document.getElementById('total-pendente').innerText = `R$ ${(trabalhado - recebido).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
     }
 
+    function exportarDados() {
+        const data = { db, recebidosMensais, bg: localStorage.getItem('custom_bg'), bn: localStorage.getItem('custom_bn') };
+        const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `backup_financeiro_${new Date().toLocaleDateString()}.json`;
+        a.click();
+    }
+
+    function importarDados(input) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const data = JSON.parse(e.target.result);
+            db = data.db; recebidosMensais = data.recebidosMensais;
+            localStorage.setItem('faturas_manual_v7', JSON.stringify(db));
+            localStorage.setItem('recebidos_mes', JSON.stringify(recebidosMensais));
+            if(data.bg) localStorage.setItem('custom_bg', data.bg);
+            if(data.bn) localStorage.setItem('custom_bn', data.bn);
+            location.reload();
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+
     function ajustarQtd(id, delta) {
         const item = db.find(d => d.id === id);
         if (item) { item.qty = Math.max(1, item.qty + delta); localStorage.setItem('faturas_manual_v7', JSON.stringify(db)); render(); }
@@ -187,6 +204,13 @@
         if(!n || isNaN(v)) return alert("Preencha o nome e valor!");
         const add = (img) => { db.push({ id: Date.now(), nome: n.toUpperCase(), qty: q, valor: v, mes: mesAtivo, foto: img }); localStorage.setItem('faturas_manual_v7', JSON.stringify(db)); document.getElementById('nome').value=''; document.getElementById('valor').value=''; render(); };
         if(f) { const r = new FileReader(); r.onload = (e) => { const img = new Image(); img.src = e.target.result; img.onload = () => { const canvas = document.createElement('canvas'); canvas.width = 100; canvas.height = 100; canvas.getContext('2d').drawImage(img, 0, 0, 100, 100); add(canvas.toDataURL('image/jpeg', 0.8)); }; }; r.readAsDataURL(f); } else add('');
+    }
+
+    function processarVisual(tipo, input) {
+        if(!input.files[0]) return;
+        const reader = new FileReader();
+        reader.onload = (e) => { localStorage.setItem(tipo === 'bg' ? 'custom_bg' : 'custom_bn', e.target.result); render(); };
+        reader.readAsDataURL(input.files[0]);
     }
 
     function mudarMes(i) { mesAtivo = i; render(); }
