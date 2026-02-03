@@ -7,41 +7,31 @@
     <style>
         :root { --primary: #00c897; --dark: rgba(18, 18, 18, 0.98); --card-bg: rgba(255, 255, 255, 0.98); }
         body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background-color: #000; background-attachment: fixed; background-position: center; background-repeat: no-repeat; background-size: cover; min-height: 100vh; }
-        
         #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; color: white; }
         .login-box { background: var(--dark); padding: 40px; border-radius: 20px; border: 1px solid var(--primary); width: 320px; box-shadow: 0 0 20px rgba(0,200,151,0.2); }
         .btn-entrar { width: 100%; padding: 12px; background: var(--primary); border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px; color: white; text-transform: uppercase; }
-
         #main-system { display: none; padding: 20px; }
         .config-btns { position: fixed; top: 10px; right: 10px; z-index: 1000; display: flex; gap: 8px; }
         .btn-config { background: #000; color: #fff; border: 1px solid var(--primary); padding: 8px 12px; border-radius: 6px; font-size: 10px; cursor: pointer; opacity: 0.7; }
-        
         .header-banner { width: 100%; height: 280px; background-position: center; background-size: cover; border-bottom: 4px solid var(--primary); margin-bottom: 20px; }
         .container { max-width: 1100px; margin: 0 auto; }
-
         .meses-container { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 20px; scrollbar-width: thin; }
         .mes-card { min-width: 150px; background: var(--dark); color: white; padding: 15px; border-radius: 12px; text-align: center; cursor: pointer; border: 2px solid transparent; flex-shrink: 0; transition: 0.3s; }
         .mes-card.active { border-color: var(--primary); transform: translateY(-3px); }
-        .valor-mes { display: block; font-size: 18px; font-weight: bold; color: var(--primary); margin: 5px 0; }
-
         .card { background: var(--card-bg); padding: 25px; border-radius: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); margin-bottom: 25px; color: #333; }
-        
         table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; }
         th { background: #f8fafc; text-align: left; padding: 15px; font-size: 11px; color: #94a3b8; text-transform: uppercase; }
         td { padding: 12px 15px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
         .img-preview { width: 55px; height: 55px; border-radius: 6px; object-fit: cover; border: 1px solid #eee; }
-
         .btn-qty { background: #f1f1f1; border: none; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        .qty-num { margin: 0 12px; font-weight: bold; }
-
         .footer-total { background: var(--dark); color: white; padding: 25px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
         .total-item { text-align: left; margin-right: 40px; }
         .total-label { display: block; font-size: 10px; color: #94a3b8; text-transform: uppercase; margin-bottom: 5px; }
         .total-valor { font-size: 28px; color: var(--primary); font-weight: 800; margin: 0; }
+        .input-recebido { background: transparent; border: 1px solid #333; color: white; font-size: 28px; font-weight: 800; width: 180px; padding: 5px; border-radius: 8px; }
     </style>
 </head>
 <body>
-
     <div id="login-screen">
         <div class="login-box">
             <h2 style="color: var(--primary); letter-spacing: 2px;">FINANCEIRO VÍDEOS</h2>
@@ -57,69 +47,51 @@
             <input type="file" id="in-bg" hidden onchange="processarVisual('bg', this)">
             <input type="file" id="in-bn" hidden onchange="processarVisual('bn', this)">
         </div>
-
         <div class="header-banner" id="banner-visual"></div>
-
         <div class="container">
             <div class="meses-container" id="carrossel"></div>
-
             <div class="card">
                 <h3 style="margin-top:0; font-size: 14px; color: var(--primary);">LANÇAR NOVO VÍDEO - <span id="txt-mes"></span></h3>
                 <div style="display: grid; grid-template-columns: 1fr 2fr 1fr 1fr; gap: 12px; align-items: end;">
-                    <div>
-                        <label style="font-size: 10px; font-weight: bold;">ARTE</label>
-                        <input type="file" id="foto" style="font-size:10px; width: 100%;">
-                    </div>
+                    <div><label style="font-size: 10px; font-weight: bold;">ARTE</label><input type="file" id="foto" style="font-size:10px; width: 100%;"></div>
                     <input type="text" id="nome" placeholder="Nome do Vídeo" style="padding:12px; border-radius:8px; border:1px solid #ddd; font-weight: bold;">
                     <input type="number" id="valor" placeholder="R$ Unitário" style="padding:12px; border-radius:8px; border:1px solid #ddd;">
                     <input type="number" id="qtd" value="1" style="padding:12px; border-radius:8px; border:1px solid #ddd; text-align: center;">
-                </div>
-                <div style="margin-top: 15px; width: 200px;">
-                    <label style="font-size: 10px; font-weight: bold;">JÁ RECEBI DESTE VÍDEO (R$)</label>
-                    <input type="number" id="recebido" placeholder="Valor Pago" style="width:100%; padding:12px; border-radius:8px; border:1px solid #ddd; color: var(--primary); font-weight: bold;">
                 </div>
                 <button class="btn-entrar" style="margin-top:20px;" onclick="salvar()">ADICIONAR À LISTA</button>
             </div>
 
             <div class="card" style="padding:0; overflow: hidden;">
                 <table>
-                    <thead>
-                        <tr>
-                            <th>Arte</th>
-                            <th>Descrição</th>
-                            <th style="text-align: center;">Qtd</th>
-                            <th>Subtotal</th>
-                            <th>Ação</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Arte</th><th>Descrição</th><th style="text-align: center;">Qtd</th><th>Subtotal</th><th>Ação</th></tr></thead>
                     <tbody id="lista"></tbody>
                 </table>
                 <div class="footer-total">
-                    <div style="display: flex;">
+                    <div style="display: flex; align-items: center;">
                         <div class="total-item">
                             <span class="total-label">Trabalhado</span>
-                            <p class="total-valor" id="total-geral"></p>
+                            <p class="total-valor" id="total-geral">R$ 0,00</p>
                         </div>
                         <div class="total-item">
-                            <span class="total-label">Recebido</span>
-                            <p class="total-valor" id="total-recebido" style="color: white;"></p>
+                            <span class="total-label">Recebido (Eu edito aqui)</span>
+                            <input type="number" id="input-recebido" class="input-recebido" value="0" oninput="calcularSaldo()">
                         </div>
                         <div class="total-item" style="border-left: 1px solid #333; padding-left: 30px;">
                             <span class="total-label">A Receber</span>
-                            <p class="total-valor" id="total-pendente" style="color: #ef4444;"></p>
+                            <p class="total-valor" id="total-pendente" style="color: #ef4444;">R$ 0,00</p>
                         </div>
                     </div>
                     <button onclick="window.print()" style="background:var(--primary); color:white; border:none; padding:15px 30px; border-radius:10px; font-weight:bold; cursor:pointer;">GERAR PDF</button>
                 </div>
             </div>
-            <center><button onclick="limparTudo()" style="color: #444; border: none; background: none; cursor: pointer; font-size: 10px; margin-bottom: 30px;">Zerar todos os meses</button></center>
         </div>
     </div>
 
 <script>
     const CHAVE_MESTRA = "2026"; 
     const mesesNomes = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-    let db = JSON.parse(localStorage.getItem('faturas_parceria_v6')) || [];
+    let db = JSON.parse(localStorage.getItem('faturas_manual_v7')) || [];
+    let recebidosMensais = JSON.parse(localStorage.getItem('recebidos_mes')) || {};
     let mesAtivo = new Date().getMonth();
 
     function login() {
@@ -133,10 +105,7 @@
     function processarVisual(tipo, input) {
         if(!input.files[0]) return;
         const reader = new FileReader();
-        reader.onload = (e) => {
-            localStorage.setItem(tipo === 'bg' ? 'custom_bg' : 'custom_bn', e.target.result);
-            render();
-        };
+        reader.onload = (e) => { localStorage.setItem(tipo === 'bg' ? 'custom_bg' : 'custom_bn', e.target.result); render(); };
         reader.readAsDataURL(input.files[0]);
     }
 
@@ -149,83 +118,45 @@
         mesesNomes.forEach((m, i) => {
             const itens = db.filter(d => parseInt(d.mes) === i);
             const total = itens.reduce((acc, cur) => acc + (cur.qty * cur.valor), 0);
-            car.innerHTML += `<div class="mes-card ${i==mesAtivo?'active':''}" onclick="mudarMes(${i})">
-                <span>Mês de</span><strong>${m}</strong><span class="valor-mes">R$ ${total.toFixed(2)}</span></div>`;
+            car.innerHTML += `<div class="mes-card ${i==mesAtivo?'active':''}" onclick="mudarMes(${i})"><span>Mês de</span><strong>${m}</strong><br>R$ ${total.toFixed(2)}</div>`;
         });
 
         const list = document.getElementById('lista'); 
         document.getElementById('txt-mes').innerText = mesesNomes[mesAtivo];
-        list.innerHTML = ''; 
-        let sTotal = 0, sRecebido = 0;
+        list.innerHTML = ''; let sTotal = 0;
         
         db.filter(d => parseInt(d.mes) === mesAtivo).forEach(d => {
-            let totalJob = d.qty * d.valor;
-            sTotal += totalJob;
-            sRecebido += d.pago;
-            
-            list.innerHTML += `<tr>
-                <td><img src="${d.foto||''}" class="img-preview" style="display:${d.foto?'block':'none'}"></td>
-                <td><strong>${d.nome}</strong><br><small>R$ ${d.valor.toFixed(2)}/un</small></td>
-                <td style="text-align: center;">
-                    <button class="btn-qty" onclick="ajustarQtd(${d.id}, -1)">-</button>
-                    <span class="qty-num">${d.qty}</span>
-                    <button class="btn-qty" onclick="ajustarQtd(${d.id}, 1)">+</button>
-                </td>
-                <td><strong>R$ ${totalJob.toFixed(2)}</strong></td>
-                <td><button onclick="excluir(${d.id})" style="border:none; background:none; color:#ccc; cursor:pointer">✕</button></td>
-            </tr>`;
+            let totalJob = d.qty * d.valor; sTotal += totalJob;
+            list.innerHTML += `<tr><td><img src="${d.foto||''}" class="img-preview" style="display:${d.foto?'block':'none'}"></td><td><strong>${d.nome}</strong><br><small>R$ ${d.valor.toFixed(2)}/un</small></td><td style="text-align:center;"><button class="btn-qty" onclick="ajustarQtd(${d.id},-1)">-</button><span style="margin:0 10px">${d.qty}</span><button class="btn-qty" onclick="ajustarQtd(${d.id},1)">+</button></td><td><strong>R$ ${totalJob.toFixed(2)}</strong></td><td><button onclick="excluir(${d.id})" style="border:none;background:none;color:#ccc;cursor:pointer">✕</button></td></tr>`;
         });
         
         document.getElementById('total-geral').innerText = `R$ ${sTotal.toFixed(2)}`;
-        document.getElementById('total-recebido').innerText = `R$ ${sRecebido.toFixed(2)}`;
-        document.getElementById('total-pendente').innerText = `R$ ${(sTotal - sRecebido).toFixed(2)}`;
+        document.getElementById('input-recebido').value = recebidosMensais[mesAtivo] || 0;
+        calcularSaldo();
+    }
+
+    function calcularSaldo() {
+        const trabalhado = parseFloat(document.getElementById('total-geral').innerText.replace('R$ ', '')) || 0;
+        const recebido = parseFloat(document.getElementById('input-recebido').value) || 0;
+        recebidosMensais[mesAtivo] = recebido;
+        localStorage.setItem('recebidos_mes', JSON.stringify(recebidosMensais));
+        document.getElementById('total-pendente').innerText = `R$ ${(trabalhado - recebido).toFixed(2)}`;
     }
 
     function ajustarQtd(id, delta) {
         const item = db.find(d => d.id === id);
-        if (item) {
-            item.qty = Math.max(1, item.qty + delta);
-            localStorage.setItem('faturas_parceria_v6', JSON.stringify(db));
-            render();
-        }
+        if (item) { item.qty = Math.max(1, item.qty + delta); localStorage.setItem('faturas_manual_v7', JSON.stringify(db)); render(); }
     }
 
     function salvar() {
-        const n = document.getElementById('nome').value;
-        const q = parseInt(document.getElementById('qtd').value);
-        const v = parseFloat(document.getElementById('valor').value);
-        const p = parseFloat(document.getElementById('recebido').value) || 0;
-        const f = document.getElementById('foto').files[0];
-
+        const n = document.getElementById('nome').value; const q = parseInt(document.getElementById('qtd').value); const v = parseFloat(document.getElementById('valor').value); const f = document.getElementById('foto').files[0];
         if(!n || isNaN(v)) return alert("Preencha o nome e valor!");
-
-        const add = (img) => {
-            db.push({ id: Date.now(), nome: n.toUpperCase(), qty: q, valor: v, pago: p, mes: mesAtivo, foto: img });
-            localStorage.setItem('faturas_parceria_v6', JSON.stringify(db));
-            document.getElementById('nome').value = '';
-            document.getElementById('valor').value = '';
-            document.getElementById('recebido').value = '';
-            render();
-        };
-
-        if(f) {
-            const r = new FileReader();
-            r.onload = (e) => {
-                const img = new Image(); img.src = e.target.result;
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = 100; canvas.height = 100;
-                    canvas.getContext('2d').drawImage(img, 0, 0, 100, 100);
-                    add(canvas.toDataURL('image/jpeg', 0.8));
-                };
-            };
-            r.readAsDataURL(f);
-        } else add('');
+        const add = (img) => { db.push({ id: Date.now(), nome: n.toUpperCase(), qty: q, valor: v, mes: mesAtivo, foto: img }); localStorage.setItem('faturas_manual_v7', JSON.stringify(db)); document.getElementById('nome').value=''; document.getElementById('valor').value=''; render(); };
+        if(f) { const r = new FileReader(); r.onload = (e) => { const img = new Image(); img.src = e.target.result; img.onload = () => { const canvas = document.createElement('canvas'); canvas.width = 100; canvas.height = 100; canvas.getContext('2d').drawImage(img, 0, 0, 100, 100); add(canvas.toDataURL('image/jpeg', 0.8)); }; }; r.readAsDataURL(f); } else add('');
     }
 
     function mudarMes(i) { mesAtivo = i; render(); }
-    function excluir(id) { if(confirm("Remover?")) { db = db.filter(d => d.id !== id); localStorage.setItem('faturas_parceria_v6', JSON.stringify(db)); render(); } }
-    function limparTudo() { if(confirm("Apagar TUDO?")) { db = []; localStorage.clear(); location.reload(); } }
+    function excluir(id) { if(confirm("Remover?")) { db = db.filter(d => d.id !== id); localStorage.setItem('faturas_manual_v7', JSON.stringify(db)); render(); } }
 </script>
 </body>
 </html>
