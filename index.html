@@ -18,7 +18,7 @@
         .btn-config { background: #000; color: #fff; border: 1px solid var(--primary); padding: 8px 12px; border-radius: 6px; font-size: 10px; cursor: pointer; opacity: 0.7; }
         
         .header-banner { width: 100%; height: 280px; background-position: center; background-repeat: no-repeat; background-size: cover; border-bottom: 4px solid var(--primary); margin-bottom: 20px; }
-        .container { max-width: 1100px; margin: 0 auto; }
+        .container { max-width: 1200px; margin: 0 auto; }
 
         .card { background: var(--card-bg); padding: 25px; border-radius: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); margin-bottom: 25px; }
         
@@ -26,7 +26,10 @@
         th { background: #f8fafc; text-align: left; padding: 15px; font-size: 11px; color: #94a3b8; text-transform: uppercase; }
         td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 14px; vertical-align: middle; }
         
-        .img-preview { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; border: 1px solid #eee; display: block; }
+        .img-preview { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; border: 1px solid #eee; }
+        .qty-controls { display: flex; align-items: center; gap: 10px; }
+        .btn-qty { width: 25px; height: 25px; border-radius: 50%; border: 1px solid #ddd; background: #f8fafc; cursor: pointer; font-weight: bold; }
+        
         .saldo-negativo { color: #ef4444; font-weight: bold; }
         .saldo-pago { color: #10b981; font-weight: bold; }
 
@@ -35,9 +38,6 @@
         .total-item { text-align: left; }
         .total-label { display: block; font-size: 10px; color: #94a3b8; margin-bottom: 5px; text-transform: uppercase; }
         .total-value { font-size: 26px; font-weight: 800; color: var(--primary); }
-        .btn-pdf { padding: 15px 30px; background: var(--primary); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; }
-        
-        .input-file-custom { font-size: 12px; margin-top: 5px; color: #666; }
     </style>
 </head>
 <body>
@@ -45,7 +45,7 @@
 <div id="tela-de-login">
     <div class="login-box">
         <h2>FINANCEIRO VÍDEOS</h2>
-        <p style="font-size: 10px; color: #666; margin-bottom: 20px;">CONTROLE DE PARCERIA + ARTES</p>
+        <p style="font-size: 10px; color: #666; margin-bottom: 20px;">CONTROLE COMPLETO</p>
         <input type="password" id="input-chave" placeholder="Digite sua chave">
         <button class="btn-entrar" onclick="verificarChave()">Acessar Painel</button>
     </div>
@@ -63,15 +63,16 @@
 
     <div class="container">
         <div class="card">
-            <h3>Novo Lançamento com Arte</h3>
-            <div style="display: grid; grid-template-columns: 1fr 2fr 1fr 1fr; gap: 10px; align-items: end;">
+            <h3>Novo Lançamento</h3>
+            <div style="display: grid; grid-template-columns: 1fr 2fr 1fr 1fr 1fr; gap: 10px; align-items: end;">
                 <div>
-                    <label class="total-label">Thumbnail</label>
-                    <input type="file" id="v-img" class="input-file-custom" accept="image/*">
+                    <label style="font-size: 10px; color: #666;">Arte</label>
+                    <input type="file" id="v-img" accept="image/*" style="font-size: 10px;">
                 </div>
                 <input type="text" id="desc" placeholder="Descrição do Vídeo">
-                <input type="number" id="v-total" placeholder="Valor Total (R$)">
-                <input type="number" id="v-pago" placeholder="Já Recebido (R$)">
+                <input type="number" id="v-unit" placeholder="Valor Unitário (R$)">
+                <input type="number" id="v-qty" placeholder="Qtd" value="1">
+                <input type="number" id="v-pago" placeholder="Já Pago (R$)">
             </div>
             <button class="btn-entrar" style="margin-top: 15px;" onclick="adicionarLinha()">Adicionar à Lista</button>
         </div>
@@ -81,10 +82,11 @@
                 <thead>
                     <tr>
                         <th>Arte</th>
-                        <th>Data</th>
                         <th>Descrição</th>
-                        <th>Total (R$)</th>
-                        <th>Pago (R$)</th>
+                        <th>Qtd</th>
+                        <th>Unitário</th>
+                        <th>Total Job</th>
+                        <th>Pago</th>
                         <th>Saldo</th>
                         <th>Ação</th>
                     </tr>
@@ -96,25 +98,25 @@
         <div class="footer-total">
             <div class="total-group">
                 <div class="total-item">
-                    <span class="total-label">Trabalhado</span>
+                    <span class="total-label">Total do Mês</span>
                     <span id="resumo-total" class="total-value">R$ 0,00</span>
                 </div>
                 <div class="total-item">
-                    <span class="total-label">Em Caixa</span>
+                    <span class="total-label">Já Recebido</span>
                     <span id="resumo-pago" class="total-value" style="color: #fff;">R$ 0,00</span>
                 </div>
                 <div class="total-item" style="border-left: 1px solid #333; padding-left: 30px;">
-                    <span class="total-label">A Receber</span>
+                    <span class="total-label">Pendente</span>
                     <span id="resumo-pendente" class="total-value" style="color: #ef4444;">R$ 0,00</span>
                 </div>
             </div>
-            <button class="btn-pdf" onclick="window.print()">GERAR RELATÓRIO</button>
+            <button class="btn-entrar" style="width: auto; padding: 10px 20px;" onclick="window.print()">GERAR RELATÓRIO</button>
         </div>
     </div>
 </div>
 
 <script>
-    let dados = JSON.parse(localStorage.getItem('financeiro_v3')) || [];
+    let dados = JSON.parse(localStorage.getItem('financeiro_v4')) || [];
 
     function verificarChave() {
         if(document.getElementById('input-chave').value === '2026') {
@@ -127,7 +129,8 @@
 
     function adicionarLinha() {
         const desc = document.getElementById('desc').value;
-        const total = parseFloat(document.getElementById('v-total').value) || 0;
+        const unit = parseFloat(document.getElementById('v-unit').value) || 0;
+        const qty = parseInt(document.getElementById('v-qty').value) || 1;
         const pago = parseFloat(document.getElementById('v-pago').value) || 0;
         const fileInput = document.getElementById('v-img');
 
@@ -136,19 +139,20 @@
         if (fileInput.files && fileInput.files[0]) {
             const reader = new FileReader();
             reader.onload = function(e) {
-                salvarDados(e.target.result, desc, total, pago);
+                salvarDados(e.target.result, desc, unit, qty, pago);
             };
             reader.readAsDataURL(fileInput.files[0]);
         } else {
-            salvarDados('', desc, total, pago);
+            salvarDados('', desc, unit, qty, pago);
         }
     }
 
-    function salvarDados(img, desc, total, pago) {
-        dados.push({ id: Date.now(), data: new Date().toLocaleDateString('pt-BR'), img, desc, total, pago });
+    function salvarDados(img, desc, unit, qty, pago) {
+        dados.push({ id: Date.now(), img, desc, unit, qty, pago });
         salvarEAtualizar();
         document.getElementById('desc').value = '';
-        document.getElementById('v-total').value = '';
+        document.getElementById('v-unit').value = '';
+        document.getElementById('v-qty').value = '1';
         document.getElementById('v-pago').value = '';
         document.getElementById('v-img').value = '';
     }
@@ -156,20 +160,29 @@
     function renderizarTabela() {
         const corpo = document.getElementById('corpo-tabela');
         corpo.innerHTML = '';
-        let somaTotal = 0, somaPago = 0;
+        let somaTotalMes = 0, somaPagoMes = 0;
 
         dados.forEach(item => {
-            const saldo = item.total - item.pago;
-            somaTotal += item.total;
-            somaPago += item.pago;
-            const imgHtml = item.img ? `<img src="${item.img}" class="img-preview">` : `<div style="width:60px;height:60px;background:#eee;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#999">N/A</div>`;
+            const totalLinha = item.unit * item.qty;
+            const saldo = totalLinha - item.pago;
+            somaTotalMes += totalLinha;
+            somaPagoMes += item.pago;
+
+            const imgHtml = item.img ? `<img src="${item.img}" class="img-preview">` : `<div style="width:60px;height:60px;background:#eee;border-radius:8px;"></div>`;
 
             corpo.innerHTML += `
                 <tr>
                     <td>${imgHtml}</td>
-                    <td>${item.data}</td>
-                    <td style="font-weight:600">${item.desc}</td>
-                    <td>R$ ${item.total.toFixed(2)}</td>
+                    <td>${item.desc}</td>
+                    <td>
+                        <div class="qty-controls">
+                            <button class="btn-qty" onclick="alterarQtd(${item.id}, -1)">-</button>
+                            <span>${item.qty}</span>
+                            <button class="btn-qty" onclick="alterarQtd(${item.id}, 1)">+</button>
+                        </div>
+                    </td>
+                    <td>R$ ${item.unit.toFixed(2)}</td>
+                    <td>R$ ${totalLinha.toFixed(2)}</td>
                     <td>R$ ${item.pago.toFixed(2)}</td>
                     <td class="${saldo > 0 ? 'saldo-negativo' : 'saldo-pago'}">
                         ${saldo <= 0 ? 'PAGO' : 'R$ ' + saldo.toFixed(2)}
@@ -179,20 +192,28 @@
             `;
         });
 
-        document.getElementById('resumo-total').innerText = `R$ ${somaTotal.toFixed(2)}`;
-        document.getElementById('resumo-pago').innerText = `R$ ${somaPago.toFixed(2)}`;
-        document.getElementById('resumo-pendente').innerText = `R$ ${(somaTotal - somaPago).toFixed(2)}`;
+        document.getElementById('resumo-total').innerText = `R$ ${somaTotalMes.toFixed(2)}`;
+        document.getElementById('resumo-pago').innerText = `R$ ${somaPagoMes.toFixed(2)}`;
+        document.getElementById('resumo-pendente').innerText = `R$ ${(somaTotalMes - somaPagoMes).toFixed(2)}`;
+    }
+
+    function alterarQtd(id, delta) {
+        const item = dados.find(i => i.id === id);
+        if (item) {
+            item.qty = Math.max(0, item.qty + delta);
+            salvarEAtualizar();
+        }
     }
 
     function remover(id) {
-        if(confirm('Remover este lançamento?')) {
+        if(confirm('Remover este item?')) {
             dados = dados.filter(i => i.id !== id);
             salvarEAtualizar();
         }
     }
 
     function salvarEAtualizar() {
-        localStorage.setItem('financeiro_v3', JSON.stringify(dados));
+        localStorage.setItem('financeiro_v4', JSON.stringify(dados));
         renderizarTabela();
     }
 
