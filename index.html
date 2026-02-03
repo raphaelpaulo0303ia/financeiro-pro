@@ -6,28 +6,27 @@
     <title>Financeiro Vídeos | Raphael Designer</title>
     <style>
         :root { --primary: #00c897; --dark: rgba(18, 18, 18, 0.98); --card-bg: rgba(255, 255, 255, 0.98); }
-        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background-color: #000; background-attachment: fixed; background-position: center; background-repeat: no-repeat; background-size: cover; min-height: 100vh; transition: 0.5s; }
+        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background-color: #000; background-attachment: fixed; background-position: center; background-repeat: no-repeat; background-size: cover; min-height: 100vh; }
         
-        /* LOGIN */
-        #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; }
+        #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; color: white; }
         .login-box { background: var(--dark); padding: 40px; border-radius: 20px; border: 1px solid var(--primary); width: 320px; box-shadow: 0 0 20px rgba(0,200,151,0.2); }
         .btn-entrar { width: 100%; padding: 12px; background: var(--primary); border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px; color: white; text-transform: uppercase; }
 
-        /* SISTEMA */
-        #main-system { display: none; }
+        #main-system { display: none; padding: 20px; }
         .config-btns { position: fixed; top: 10px; right: 10px; z-index: 1000; display: flex; gap: 8px; }
         .btn-config { background: #000; color: #fff; border: 1px solid var(--primary); padding: 8px 12px; border-radius: 6px; font-size: 10px; cursor: pointer; opacity: 0.7; }
         
-        .header-banner { width: 100%; height: 280px; background-position: center; background-repeat: no-repeat; background-size: cover; border-bottom: 4px solid var(--primary); }
-        .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
-        
-        .card { background: var(--card-bg); padding: 25px; border-radius: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); margin-bottom: 25px; color: #333; }
-        .meses-container { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 15px; scrollbar-width: thin; }
+        .header-banner { width: 100%; height: 280px; background-position: center; background-size: cover; border-bottom: 4px solid var(--primary); margin-bottom: 20px; }
+        .container { max-width: 1100px; margin: 0 auto; }
+
+        /* MESES NO TOPO */
+        .meses-container { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 20px; scrollbar-width: thin; }
         .mes-card { min-width: 150px; background: var(--dark); color: white; padding: 15px; border-radius: 12px; text-align: center; cursor: pointer; border: 2px solid transparent; flex-shrink: 0; transition: 0.3s; }
         .mes-card.active { border-color: var(--primary); transform: translateY(-3px); }
         .valor-mes { display: block; font-size: 18px; font-weight: bold; color: var(--primary); margin: 5px 0; }
 
-        /* TABELA */
+        .card { background: var(--card-bg); padding: 25px; border-radius: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); margin-bottom: 25px; color: #333; }
+        
         table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; }
         th { background: #f8fafc; text-align: left; padding: 15px; font-size: 11px; color: #94a3b8; text-transform: uppercase; }
         td { padding: 12px 15px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
@@ -36,23 +35,20 @@
         .btn-qty { background: #f1f1f1; border: none; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; font-weight: bold; }
         .qty-num { margin: 0 12px; font-weight: bold; }
 
-        .saldo-devedor { color: #ef4444; font-weight: bold; }
-        .saldo-pago { color: #00c897; font-weight: bold; }
-
-        .footer-total { background: var(--dark); color: white; padding: 25px; border-radius: 12px; margin-top: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
-        .total-item { text-align: left; margin-right: 30px; }
+        /* RODAPÉ COM OS 3 CONTADORES */
+        .footer-total { background: var(--dark); color: white; padding: 25px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .total-item { text-align: left; margin-right: 40px; }
+        .total-label { display: block; font-size: 10px; color: #94a3b8; text-transform: uppercase; margin-bottom: 5px; }
         .total-valor { font-size: 28px; color: var(--primary); font-weight: 800; margin: 0; }
-
-        @media print { .config-btns, .card, .meses-container, .header-banner, #login-screen, .btn-qty, .btn-del { display: none !important; } #main-system { display: block; } .footer-total { color: black; border-top: 2px solid #000; background: white; } }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
         <div class="login-box">
-            <h2 style="color: var(--primary); margin-top:0; letter-spacing: 2px;">FINANCEIRO VÍDEOS</h2>
-            <input type="password" id="input-senha" style="width:100%; padding:12px; border-radius:8px; border:none; background:#1a1a1a; color:#fff; box-sizing:border-box; text-align:center; font-size: 18px;" placeholder="CHAVE">
-            <button class="btn-entrar" onclick="login()">Acessar Painel</button>
+            <h2 style="color: var(--primary); letter-spacing: 2px;">FINANCEIRO VÍDEOS</h2>
+            <input type="password" id="input-senha" style="width:100%; padding:12px; border-radius:8px; border:none; background:#1a1a1a; color:#fff; text-align:center;" placeholder="CHAVE">
+            <button class="btn-entrar" onclick="login()">Acessar</button>
         </div>
     </div>
 
@@ -70,40 +66,32 @@
             <div class="meses-container" id="carrossel"></div>
 
             <div class="card">
-                <h3 style="margin-top:0; font-size: 14px; color: var(--primary);">NOVO LANÇAMENTO</h3>
-                <input type="text" id="nome" placeholder="Título do Vídeo" style="width:100%; padding:14px; margin-bottom:12px; border-radius:8px; border:1px solid #ddd; font-weight: bold;">
-                <div style="display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 12px;">
-                    <select id="sel-mes" style="padding:12px; border-radius:8px; border:1px solid #ddd; background: #fff;">
-                        <option value="0">Janeiro</option><option value="1">Fevereiro</option><option value="2">Março</option>
-                        <option value="3">Abril</option><option value="4">Maio</option><option value="5">Junho</option>
-                        <option value="6">Julho</option><option value="7">Agosto</option><option value="8">Setembro</option>
-                        <option value="9">Outubro</option><option value="10">Novembro</option><option value="11">Dezembro</option>
-                    </select>
-                    <input type="number" id="valor" placeholder="R$ Unitário" style="padding:12px; border-radius:8px; border:1px solid #ddd; font-weight: bold;">
+                <h3 style="margin-top:0; font-size: 14px; color: var(--primary);">NOVO LANÇAMENTO - <span id="txt-mes"></span></h3>
+                <div style="display: grid; grid-template-columns: 1fr 2fr 1fr 1fr; gap: 12px; align-items: end;">
+                    <div>
+                        <label style="font-size: 10px; font-weight: bold;">ARTE</label>
+                        <input type="file" id="foto" style="font-size:10px; width: 100%;">
+                    </div>
+                    <input type="text" id="nome" placeholder="Descrição do Vídeo" style="padding:12px; border-radius:8px; border:1px solid #ddd; font-weight: bold;">
+                    <input type="number" id="valor" placeholder="R$ Unitário" style="padding:12px; border-radius:8px; border:1px solid #ddd;">
                     <input type="number" id="qtd" value="1" style="padding:12px; border-radius:8px; border:1px solid #ddd; text-align: center;">
-                    <input type="number" id="recebido" placeholder="Já Recebi (R$)" style="padding:12px; border-radius:8px; border:1px solid #ddd; color: var(--primary);">
                 </div>
-                <div style="margin-top:15px; display: flex; align-items: center; gap: 10px;">
-                    <label style="font-size: 11px; font-weight: bold;">PREVIEW DA ARTE:</label>
-                    <input type="file" id="foto" style="font-size:11px;">
+                <div style="margin-top: 15px; width: 200px;">
+                    <label style="font-size: 10px; font-weight: bold;">JÁ RECEBI DESTE VÍDEO (R$)</label>
+                    <input type="number" id="recebido" placeholder="Valor Pago" style="width:100%; padding:12px; border-radius:8px; border:1px solid #ddd; color: var(--primary); font-weight: bold;">
                 </div>
                 <button class="btn-entrar" style="margin-top:20px;" onclick="salvar()">ADICIONAR À LISTA</button>
             </div>
 
             <div class="card" style="padding:0; overflow: hidden;">
-                <div style="padding:20px; border-bottom: 1px solid #eee;">
-                    <h3 id="tit-rel" style="margin:0; font-size: 18px;"></h3>
-                </div>
                 <table>
                     <thead>
                         <tr>
                             <th>Arte</th>
                             <th>Descrição</th>
-                            <th style="text-align: center;">Qtd</th>
-                            <th>Total Job</th>
-                            <th>Pago</th>
-                            <th>Saldo</th>
-                            <th></th>
+                            <th style="text-align: center;">Quantidade</th>
+                            <th>Subtotal</th>
+                            <th>Ação</th>
                         </tr>
                     </thead>
                     <tbody id="lista"></tbody>
@@ -111,15 +99,15 @@
                 <div class="footer-total">
                     <div style="display: flex;">
                         <div class="total-item">
-                            <span style="font-size:10px; opacity:0.6; text-transform: uppercase;">Total do Mês</span>
+                            <span class="total-label">Trabalhado</span>
                             <p class="total-valor" id="total-geral"></p>
                         </div>
                         <div class="total-item">
-                            <span style="font-size:10px; opacity:0.6; text-transform: uppercase;">Já Recebido</span>
+                            <span class="total-label">Em Caixa</span>
                             <p class="total-valor" id="total-recebido" style="color: white;"></p>
                         </div>
-                        <div class="total-item">
-                            <span style="font-size:10px; opacity:0.6; text-transform: uppercase;">Falta Receber</span>
+                        <div class="total-item" style="border-left: 1px solid #333; padding-left: 30px;">
+                            <span class="total-label">A Receber</span>
                             <p class="total-valor" id="total-pendente" style="color: #ef4444;"></p>
                         </div>
                     </div>
@@ -133,7 +121,7 @@
 <script>
     const CHAVE_MESTRA = "2026"; 
     const mesesNomes = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-    let db = JSON.parse(localStorage.getItem('faturas_vParceria_Rapha')) || [];
+    let db = JSON.parse(localStorage.getItem('faturas_vParceria_Final')) || [];
     let mesAtivo = new Date().getMonth();
 
     function login() {
@@ -141,7 +129,7 @@
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('main-system').style.display = 'block';
             render();
-        } else { alert("Senha incorreta!"); }
+        } else { alert("Chave incorreta!"); }
     }
 
     function processarVisual(tipo, input) {
@@ -168,13 +156,12 @@
         });
 
         const list = document.getElementById('lista'); 
-        document.getElementById('tit-rel').innerText = `Contabilidade: ${mesesNomes[mesAtivo]}`;
+        document.getElementById('txt-mes').innerText = mesesNomes[mesAtivo];
         list.innerHTML = ''; 
         let sTotal = 0, sRecebido = 0;
         
         db.filter(d => parseInt(d.mes) === mesAtivo).forEach(d => {
             let totalJob = d.qtd * d.valor;
-            let saldo = totalJob - d.pago;
             sTotal += totalJob;
             sRecebido += d.pago;
             
@@ -187,9 +174,7 @@
                     <button class="btn-qty" onclick="ajustarQtd(${d.id}, 1)">+</button>
                 </td>
                 <td><strong>R$ ${totalJob.toFixed(2)}</strong></td>
-                <td>R$ ${d.pago.toFixed(2)}</td>
-                <td class="${saldo > 0 ? 'saldo-devedor' : 'saldo-pago'}">${saldo <= 0 ? 'PAGO' : 'R$ ' + saldo.toFixed(2)}</td>
-                <td><button onclick="excluir(${d.id})" style="border:none; background:none; color:#ccc; cursor:pointer">✕</button></td>
+                <td><button onclick="excluir(${d.id})" style="border:none; background:none; color:#ccc; cursor:pointer">✕ Remover</button></td>
             </tr>`;
         });
         
@@ -202,7 +187,7 @@
         const item = db.find(d => d.id === id);
         if (item) {
             item.qty = Math.max(1, item.qty + delta);
-            localStorage.setItem('faturas_vParceria_Rapha', JSON.stringify(db));
+            localStorage.setItem('faturas_vParceria_Final', JSON.stringify(db));
             render();
         }
     }
@@ -212,14 +197,13 @@
         const q = parseInt(document.getElementById('qtd').value);
         const v = parseFloat(document.getElementById('valor').value);
         const p = parseFloat(document.getElementById('recebido').value) || 0;
-        const m = document.getElementById('sel-mes').value;
         const f = document.getElementById('foto').files[0];
 
-        if(!n || isNaN(v)) return alert("Preencha o título e o valor!");
+        if(!n || isNaN(v)) return alert("Preencha o nome e valor!");
 
         const add = (img) => {
-            db.push({ id: Date.now(), nome: n.toUpperCase(), qtd: q, valor: v, pago: p, mes: m, foto: img });
-            localStorage.setItem('faturas_vParceria_Rapha', JSON.stringify(db));
+            db.push({ id: Date.now(), nome: n.toUpperCase(), qty: q, valor: v, pago: p, mes: mesAtivo, foto: img });
+            localStorage.setItem('faturas_vParceria_Final', JSON.stringify(db));
             document.getElementById('nome').value = '';
             document.getElementById('valor').value = '';
             document.getElementById('recebido').value = '';
@@ -241,11 +225,9 @@
         } else add('');
     }
 
-    function mudarMes(i) { mesAtivo = i; document.getElementById('sel-mes').value = i; render(); }
-    function excluir(id) { if(confirm("Remover?")) { db = db.filter(d => d.id !== id); localStorage.setItem('faturas_vParceria_Rapha', JSON.stringify(db)); render(); } }
+    function mudarMes(i) { mesAtivo = i; render(); }
+    function excluir(id) { if(confirm("Remover?")) { db = db.filter(d => d.id !== id); localStorage.setItem('faturas_vParceria_Final', JSON.stringify(db)); render(); } }
     function limparTudo() { if(confirm("Apagar TUDO?")) { db = []; localStorage.clear(); location.reload(); } }
-    
-    document.getElementById('sel-mes').value = mesAtivo;
 </script>
 </body>
 </html>
