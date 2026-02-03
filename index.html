@@ -29,20 +29,22 @@
         .saldo-negativo { color: #ef4444; font-weight: bold; }
         .saldo-pago { color: #10b981; font-weight: bold; }
 
-        .footer-total { background: var(--dark); color: white; padding: 25px; border-radius: 12px; margin-top: 20px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 20px; }
-        .total-item { text-align: center; }
-        .total-label { display: block; font-size: 12px; color: #94a3b8; margin-bottom: 5px; }
-        .total-value { font-size: 24px; font-weight: 800; color: var(--primary); }
+        .footer-total { background: var(--dark); color: white; padding: 25px; border-radius: 12px; margin-top: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+        .total-group { display: flex; gap: 30px; flex-wrap: wrap; }
+        .total-item { text-align: left; }
+        .total-label { display: block; font-size: 10px; color: #94a3b8; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
+        .total-value { font-size: 26px; font-weight: 800; color: var(--primary); }
+        .btn-pdf { padding: 15px 30px; background: var(--primary); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div id="tela-de-login">
     <div class="login-box">
-        <h2 id="login-title">FINANCEIRO VÍDEOS</h2>
-        <p style="font-size: 10px; color: #666; margin-bottom: 20px;">ACESSO EXCLUSIVO</p>
+        <h2>FINANCEIRO VÍDEOS</h2>
+        <p style="font-size: 10px; color: #666; margin-bottom: 20px;">CONTROLE DE PARCERIA</p>
         <input type="password" id="input-chave" placeholder="Digite sua chave">
-        <button class="btn-entrar" onclick="verificarChave()">Entrar</button>
+        <button class="btn-entrar" onclick="verificarChave()">Acessar Painel</button>
     </div>
 </div>
 
@@ -58,13 +60,13 @@
 
     <div class="container">
         <div class="card">
-            <h3>Nova Demanda de Vídeo</h3>
+            <h3>Novo Lançamento</h3>
             <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px;">
-                <input type="text" id="desc" placeholder="Descrição do Vídeo">
-                <input type="number" id="v-total" placeholder="Valor Total (R$)">
-                <input type="number" id="v-pago" placeholder="Quanto ele já pagou (R$)">
+                <input type="text" id="desc" placeholder="Ex: Clipe Ted Pagodeiro">
+                <input type="number" id="v-total" placeholder="Valor do Job (R$)">
+                <input type="number" id="v-pago" placeholder="Já Recebido (R$)">
             </div>
-            <button class="btn-entrar" style="margin-top: 15px;" onclick="adicionarLinha()">Lançar no Financeiro</button>
+            <button class="btn-entrar" style="margin-top: 15px;" onclick="adicionarLinha()">Adicionar à Lista</button>
         </div>
 
         <div class="card" style="overflow-x: auto;">
@@ -72,7 +74,7 @@
                 <thead>
                     <tr>
                         <th>Data</th>
-                        <th>Descrição</th>
+                        <th>Descrição do Vídeo</th>
                         <th>Total (R$)</th>
                         <th>Pago (R$)</th>
                         <th>Saldo</th>
@@ -84,18 +86,21 @@
         </div>
 
         <div class="footer-total">
-            <div class="total-item">
-                <span class="total-label">VALOR TOTAL DO MÊS</span>
-                <span id="resumo-total" class="total-value">R$ 0,00</span>
+            <div class="total-group">
+                <div class="total-item">
+                    <span class="total-label">Total Acumulado</span>
+                    <span id="resumo-total" class="total-value">R$ 0,00</span>
+                </div>
+                <div class="total-item">
+                    <span class="total-label">Total Recebido</span>
+                    <span id="resumo-pago" class="total-value" style="color: #fff;">R$ 0,00</span>
+                </div>
+                <div class="total-item" style="border-left: 1px solid #333; padding-left: 30px;">
+                    <span class="total-label">Falta Receber</span>
+                    <span id="resumo-pendente" class="total-value" style="color: #ef4444;">R$ 0,00</span>
+                </div>
             </div>
-            <div class="total-item">
-                <span class="total-label">TOTAL JÁ RECEBIDO</span>
-                <span id="resumo-pago" class="total-value" style="color: #fff;">R$ 0,00</span>
-            </div>
-            <div class="total-item">
-                <span class="total-label">SALDO PENDENTE</span>
-                <span id="resumo-pendente" class="total-value" style="color: #ef4444;">R$ 0,00</span>
-            </div>
+            <button class="btn-pdf" onclick="window.print()">GERAR RELATÓRIO</button>
         </div>
     </div>
 </div>
@@ -117,17 +122,9 @@
         const total = parseFloat(document.getElementById('v-total').value) || 0;
         const pago = parseFloat(document.getElementById('v-pago').value) || 0;
         
-        if(!desc) return alert('Coloque a descrição do vídeo!');
+        if(!desc) return alert('Descreva o serviço!');
 
-        const novaLinha = {
-            id: Date.now(),
-            data: new Date().toLocaleDateString('pt-BR'),
-            desc,
-            total,
-            pago
-        };
-
-        dados.push(novaLinha);
+        dados.push({ id: Date.now(), data: new Date().toLocaleDateString('pt-BR'), desc, total, pago });
         salvarEAtualizar();
         document.getElementById('desc').value = '';
         document.getElementById('v-total').value = '';
@@ -164,8 +161,10 @@
     }
 
     function remover(id) {
-        dados = dados.filter(i => i.id !== id);
-        salvarEAtualizar();
+        if(confirm('Remover este lançamento?')) {
+            dados = dados.filter(i => i.id !== id);
+            salvarEAtualizar();
+        }
     }
 
     function salvarEAtualizar() {
