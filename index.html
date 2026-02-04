@@ -4,217 +4,158 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Financeiro Vídeos | Raphael Designer</title>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <style>
         :root { --primary: #00c897; --dark: rgba(18, 18, 18, 0.98); --card-bg: rgba(255, 255, 255, 0.98); }
-        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background-color: #000; background-attachment: fixed; background-position: center; background-repeat: no-repeat; background-size: cover; min-height: 100vh; transition: 0.5s; }
-        
+        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background-color: #000; background-attachment: fixed; background-position: center; background-repeat: no-repeat; background-size: cover; min-height: 100vh; }
         #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; color: white; }
-        .login-box { background: var(--dark); padding: 40px; border-radius: 20px; border: 1px solid var(--primary); width: 320px; box-shadow: 0 0 20px rgba(0,200,151,0.2); }
-        .btn-entrar { width: 100%; padding: 12px; background: var(--primary); border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px; color: white; text-transform: uppercase; }
-
+        .login-box { background: var(--dark); padding: 40px; border-radius: 20px; border: 1px solid var(--primary); width: 320px; }
+        .btn-entrar { width: 100%; padding: 12px; background: var(--primary); border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; text-transform: uppercase; margin-top: 15px; }
         #main-system { display: none; padding: 20px; }
-        .config-btns { position: fixed; top: 10px; right: 10px; z-index: 1000; display: flex; gap: 8px; }
-        .btn-config { background: #000; color: #fff; border: 1px solid var(--primary); padding: 8px 12px; border-radius: 6px; font-size: 10px; cursor: pointer; opacity: 0.7; }
-        
         .header-banner { width: 100%; height: 280px; background-position: center; background-size: cover; border-bottom: 4px solid var(--primary); margin-bottom: 20px; }
         .container { max-width: 1100px; margin: 0 auto; }
-
-        .meses-container { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 20px; scrollbar-width: thin; }
-        .mes-card { min-width: 150px; background: var(--dark); color: white; padding: 15px; border-radius: 12px; text-align: center; cursor: pointer; border: 2px solid transparent; flex-shrink: 0; transition: 0.3s; }
+        .meses-container { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 20px; }
+        .mes-card { min-width: 150px; background: var(--dark); color: white; padding: 15px; border-radius: 12px; text-align: center; cursor: pointer; border: 2px solid transparent; flex-shrink: 0; }
         .mes-card.active { border-color: var(--primary); transform: translateY(-3px); }
-        .card { background: var(--card-bg); padding: 25px; border-radius: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); margin-bottom: 25px; color: #333; }
-        
+        .card { background: var(--card-bg); padding: 25px; border-radius: 15px; margin-bottom: 25px; color: #333; }
         table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; }
         th { background: #f8fafc; text-align: left; padding: 15px; font-size: 11px; color: #94a3b8; text-transform: uppercase; }
         td { padding: 12px 15px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
         .img-preview { width: 55px; height: 55px; border-radius: 6px; object-fit: cover; border: 1px solid #eee; }
-
-        .btn-qty { background: #f1f1f1; border: none; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; font-weight: bold; }
         .footer-total { background: var(--dark); color: white; padding: 25px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
-        .total-item { text-align: left; margin-right: 40px; }
-        .total-label { display: block; font-size: 10px; color: #94a3b8; text-transform: uppercase; margin-bottom: 5px; }
         .total-valor { font-size: 28px; color: var(--primary); font-weight: 800; margin: 0; }
-        .input-recebido { background: transparent; border: 1px solid #333; color: white; font-size: 28px; font-weight: 800; width: 180px; padding: 5px; border-radius: 8px; }
+        .input-recebido { background: transparent; border: 1px solid #333; color: white; font-size: 28px; font-weight: 800; width: 150px; border-radius: 8px; }
     </style>
 </head>
 <body>
     <div id="login-screen">
         <div class="login-box">
-            <h2 style="color: var(--primary); letter-spacing: 2px;">FINANCEIRO VÍDEOS</h2>
-            <input type="password" id="input-senha" style="width:100%; padding:12px; border-radius:8px; border:none; background:#1a1a1a; color:#fff; text-align:center;" placeholder="CHAVE">
+            <h2 style="color: var(--primary);">FINANCEIRO VÍDEOS</h2>
+            <input type="password" id="input-senha" style="width:100%; padding:12px; border-radius:8px; background:#1a1a1a; color:#fff; text-align:center;" placeholder="CHAVE">
             <button class="btn-entrar" onclick="login()">Acessar</button>
         </div>
     </div>
 
     <div id="main-system">
-        <div class="config-btns">
-            <button class="btn-config" onclick="exportarDados()">💾 BACKUP</button>
-            <button class="btn-config" onclick="document.getElementById('in-import').click()">📂 RESTAURAR</button>
-            <button class="btn-config" onclick="document.getElementById('in-bg').click()">+ Fundo</button>
-            <button class="btn-config" onclick="document.getElementById('in-bn').click()">+ Banner</button>
-            <input type="file" id="in-bg" hidden onchange="processarVisual('bg', this)">
-            <input type="file" id="in-bn" hidden onchange="processarVisual('bn', this)">
-            <input type="file" id="in-import" hidden onchange="importarDados(this)" accept=".json">
-        </div>
         <div class="header-banner" id="banner-visual"></div>
         <div class="container">
             <div class="meses-container" id="carrossel"></div>
             <div class="card">
-                <h3 style="margin-top:0; font-size: 14px; color: var(--primary);">LANÇAR NOVO VÍDEO - <span id="txt-mes"></span></h3>
+                <h3>LANÇAR NOVO VÍDEO - <span id="txt-mes"></span></h3>
                 <div style="display: grid; grid-template-columns: 1fr 2fr 1fr 1fr; gap: 12px; align-items: end;">
                     <div><label style="font-size: 10px; font-weight: bold;">ARTE</label><input type="file" id="foto" style="font-size:10px; width: 100%;"></div>
-                    <input type="text" id="nome" placeholder="Nome do Vídeo" style="padding:12px; border-radius:8px; border:1px solid #ddd; font-weight: bold;">
-                    <input type="number" id="valor" placeholder="R$ Unitário" style="padding:12px; border-radius:8px; border:1px solid #ddd; font-weight: bold; color: var(--primary);">
+                    <input type="text" id="nome" placeholder="Nome do Vídeo" style="padding:12px; border-radius:8px; border:1px solid #ddd;">
+                    <input type="number" id="valor" placeholder="R$ Unitário" style="padding:12px; border-radius:8px; border:1px solid #ddd;">
                     <input type="number" id="qtd" value="1" style="padding:12px; border-radius:8px; border:1px solid #ddd; text-align: center;">
                 </div>
                 <button class="btn-entrar" style="margin-top:20px;" onclick="salvar()">ADICIONAR À LISTA</button>
             </div>
-
             <div class="card" style="padding:0; overflow: hidden;">
                 <table>
-                    <thead>
-                        <tr>
-                            <th>Arte</th>
-                            <th>Descrição</th>
-                            <th>Valor Unitário</th>
-                            <th style="text-align: center;">Qtd</th>
-                            <th>Subtotal</th>
-                            <th>Ação</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Arte</th><th>Descrição</th><th>Valor</th><th>Qtd</th><th>Subtotal</th><th>Ação</th></tr></thead>
                     <tbody id="lista"></tbody>
                 </table>
                 <div class="footer-total">
-                    <div style="display: flex; align-items: center;">
-                        <div class="total-item">
-                            <span class="total-label">Trabalhado</span>
-                            <p class="total-valor" id="total-geral">R$ 0,00</p>
-                        </div>
-                        <div class="total-item">
-                            <span class="total-label">Recebido (Eu edito aqui)</span>
-                            <input type="number" id="input-recebido" class="input-recebido" value="0" oninput="calcularSaldo()">
-                        </div>
-                        <div class="total-item" style="border-left: 1px solid #333; padding-left: 30px;">
-                            <span class="total-label">A Receber</span>
-                            <p class="total-valor" id="total-pendente" style="color: #ef4444;">R$ 0,00</p>
-                        </div>
+                    <div style="display: flex; align-items: center; gap: 30px;">
+                        <div><span style="font-size:10px; color:#94a3b8;">TRABALHADO</span><p class="total-valor" id="total-geral">R$ 0,00</p></div>
+                        <div><span style="font-size:10px; color:#94a3b8;">RECEBIDO</span><br><input type="number" id="input-recebido" class="input-recebido" oninput="atualizarRecebidoManual()"></div>
+                        <div style="border-left: 1px solid #333; padding-left: 30px;"><span style="font-size:10px; color:#94a3b8;">A RECEBER</span><p class="total-valor" id="total-pendente" style="color:#ef4444;">R$ 0,00</p></div>
                     </div>
-                    <button onclick="window.print()" style="background:var(--primary); color:white; border:none; padding:15px 30px; border-radius:10px; font-weight:bold; cursor:pointer;">GERAR PDF</button>
                 </div>
             </div>
         </div>
     </div>
 
 <script>
-    const CHAVE_MESTRA = "2026"; 
+    // COPIE OS DADOS DA SUA TELA E COLE AQUI:
+    const firebaseConfig = {
+        apiKey: "AiZaSyA1B1GTBcJxKL9FK-ikA9mr-kOtaWJ0lxU",
+        authDomain: "financeiro-videos-raphael.firebaseapp.com",
+        databaseURL: "https://financeiro-videos-raphael-default-rtdb.firebaseio.com",
+        projectId: "financeiro-videos-raphael",
+        storageBucket: "financeiro-videos-raphael.firebasestorage.app",
+        messagingSenderId: "94002509090",
+        appId: "1:94002509090:web:f27917dd912bda7364e17b"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
     const mesesNomes = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-    let db = JSON.parse(localStorage.getItem('faturas_manual_v7')) || [];
-    let recebidosMensais = JSON.parse(localStorage.getItem('recebidos_mes')) || {};
     let mesAtivo = new Date().getMonth();
 
     function login() {
-        if(document.getElementById('input-senha').value === CHAVE_MESTRA) {
+        if(document.getElementById('input-senha').value === "2026") {
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('main-system').style.display = 'block';
-            render();
-        } else { alert("Senha incorreta!"); }
+            ouvirDados();
+        } else { alert("Chave incorreta!"); }
     }
 
-    function render() {
-        const bg = localStorage.getItem('custom_bg'); const bn = localStorage.getItem('custom_bn');
-        if(bg) document.body.style.backgroundImage = `url(${bg})`;
-        if(bn) document.getElementById('banner-visual').style.backgroundImage = `url(${bn})`;
+    function ouvirDados() {
+        database.ref('financeiro').on('value', (snapshot) => {
+            const data = snapshot.val() || {};
+            renderizarTudo(data);
+        });
+    }
 
+    function renderizarTudo(data) {
         const car = document.getElementById('carrossel'); car.innerHTML = '';
+        const list = document.getElementById('lista'); list.innerHTML = '';
+        document.getElementById('txt-mes').innerText = mesesNomes[mesAtivo];
+        
+        let sTotalMes = 0;
+        const demandas = data.demandas || {};
+        const recebidos = data.recebidos || {};
+
         mesesNomes.forEach((m, i) => {
-            const itens = db.filter(d => parseInt(d.mes) === i);
-            const total = itens.reduce((acc, cur) => acc + (cur.qty * cur.valor), 0);
+            let totalM = 0;
+            Object.values(demandas).filter(d => d.mes == i).forEach(d => totalM += (d.valor * d.qtd));
             car.innerHTML += `
                 <div class="mes-card ${i==mesAtivo?'active':''}" onclick="mudarMes(${i})">
-                    <span>Mês de</span><br><strong>${m}</strong><br>
-                    <span style="font-size:10px; color:var(--primary)">R$ ${total.toFixed(2)}</span>
+                    Mês de<br><strong>${m}</strong><br>
+                    <span style="font-size:10px; color:var(--primary)">R$ ${totalM.toFixed(2)}</span>
                 </div>`;
         });
 
-        const list = document.getElementById('lista'); 
-        document.getElementById('txt-mes').innerText = mesesNomes[mesAtivo];
-        list.innerHTML = ''; let sTotal = 0;
-        
-        db.filter(d => parseInt(d.mes) === mesAtivo).forEach(d => {
-            let totalJob = d.qty * d.valor; sTotal += totalJob;
-            list.innerHTML += `<tr>
-                <td><img src="${d.foto||''}" class="img-preview" style="display:${d.foto?'block':'none'}"></td>
-                <td><strong>${d.nome}</strong></td>
-                <td>R$ ${d.valor.toFixed(2)}</td>
-                <td style="text-align:center;">
-                    <button class="btn-qty" onclick="ajustarQtd(${d.id},-1)">-</button>
-                    <span style="margin:0 10px">${d.qty}</span>
-                    <button class="btn-qty" onclick="ajustarQtd(${d.id},1)">+</button>
-                </td>
-                <td><strong>R$ ${totalJob.toFixed(2)}</strong></td>
-                <td><button onclick="excluir(${d.id})" style="border:none;background:none;color:#ccc;cursor:pointer">✕</button></td>
-            </tr>`;
+        Object.entries(demandas).filter(([id, d]) => d.mes == mesAtivo).forEach(([id, d]) => {
+            let sub = d.valor * d.qtd; sTotalMes += sub;
+            list.innerHTML += `<tr><td><img src="${d.foto||''}" class="img-preview" style="display:${d.foto?'block':'none'}"></td><td>${d.nome}</td><td>R$ ${d.valor}</td><td>${d.qtd}</td><td>R$ ${sub.toFixed(2)}</td><td><button onclick="excluir('${id}')" style="border:none; background:none; cursor:pointer;">❌</button></td></tr>`;
         });
-        
-        document.getElementById('total-geral').innerText = `R$ ${sTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
-        document.getElementById('input-recebido').value = recebidosMensais[mesAtivo] || 0;
-        calcularSaldo();
-    }
 
-    function calcularSaldo() {
-        const totalTexto = document.getElementById('total-geral').innerText;
-        const trabalhado = parseFloat(totalTexto.replace('R$ ', '').replace(/\./g, '').replace(',', '.')) || 0;
-        const recebido = parseFloat(document.getElementById('input-recebido').value) || 0;
-        recebidosMensais[mesAtivo] = recebido;
-        localStorage.setItem('recebidos_mes', JSON.stringify(recebidosMensais));
-        document.getElementById('total-pendente').innerText = `R$ ${(trabalhado - recebido).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
-    }
-
-    function exportarDados() {
-        const data = { db, recebidosMensais, bg: localStorage.getItem('custom_bg'), bn: localStorage.getItem('custom_bn') };
-        const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `backup_financeiro_${new Date().toLocaleDateString()}.json`;
-        a.click();
-    }
-
-    function importarDados(input) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const data = JSON.parse(e.target.result);
-            db = data.db; recebidosMensais = data.recebidosMensais;
-            localStorage.setItem('faturas_manual_v7', JSON.stringify(db));
-            localStorage.setItem('recebidos_mes', JSON.stringify(recebidosMensais));
-            if(data.bg) localStorage.setItem('custom_bg', data.bg);
-            if(data.bn) localStorage.setItem('custom_bn', data.bn);
-            location.reload();
-        };
-        reader.readAsDataURL(input.files[0]);
-    }
-
-    function ajustarQtd(id, delta) {
-        const item = db.find(d => d.id === id);
-        if (item) { item.qty = Math.max(1, item.qty + delta); localStorage.setItem('faturas_manual_v7', JSON.stringify(db)); render(); }
+        document.getElementById('total-geral').innerText = `R$ ${sTotalMes.toFixed(2)}`;
+        const valorRec = recebidos[mesAtivo] || 0;
+        document.getElementById('input-recebido').value = valorRec;
+        document.getElementById('total-pendente').innerText = `R$ ${(sTotalMes - valorRec).toFixed(2)}`;
     }
 
     function salvar() {
-        const n = document.getElementById('nome').value; const q = parseInt(document.getElementById('qtd').value); const v = parseFloat(document.getElementById('valor').value); const f = document.getElementById('foto').files[0];
-        if(!n || isNaN(v)) return alert("Preencha o nome e valor!");
-        const add = (img) => { db.push({ id: Date.now(), nome: n.toUpperCase(), qty: q, valor: v, mes: mesAtivo, foto: img }); localStorage.setItem('faturas_manual_v7', JSON.stringify(db)); document.getElementById('nome').value=''; document.getElementById('valor').value=''; render(); };
-        if(f) { const r = new FileReader(); r.onload = (e) => { const img = new Image(); img.src = e.target.result; img.onload = () => { const canvas = document.createElement('canvas'); canvas.width = 100; canvas.height = 100; canvas.getContext('2d').drawImage(img, 0, 0, 100, 100); add(canvas.toDataURL('image/jpeg', 0.8)); }; }; r.readAsDataURL(f); } else add('');
+        const n = document.getElementById('nome').value;
+        const v = parseFloat(document.getElementById('valor').value);
+        const q = parseInt(document.getElementById('qtd').value);
+        const f = document.getElementById('foto').files[0];
+        
+        if(!n || isNaN(v)) return alert("Preencha os dados!");
+
+        const enviar = (imgBase64) => {
+            database.ref('financeiro/demandas').push({ nome: n.toUpperCase(), valor: v, qtd: q, mes: mesAtivo, foto: imgBase64 });
+            document.getElementById('nome').value = ''; document.getElementById('valor').value = '';
+        };
+
+        if(f) {
+            const r = new FileReader();
+            r.onload = (e) => enviar(e.target.result);
+            r.readAsDataURL(f);
+        } else enviar('');
     }
 
-    function processarVisual(tipo, input) {
-        if(!input.files[0]) return;
-        const reader = new FileReader();
-        reader.onload = (e) => { localStorage.setItem(tipo === 'bg' ? 'custom_bg' : 'custom_bn', e.target.result); render(); };
-        reader.readAsDataURL(input.files[0]);
+    function atualizarRecebidoManual() {
+        const valor = parseFloat(document.getElementById('input-recebido').value) || 0;
+        database.ref(`financeiro/recebidos/${mesAtivo}`).set(valor);
     }
 
-    function mudarMes(i) { mesAtivo = i; render(); }
-    function excluir(id) { if(confirm("Remover?")) { db = db.filter(d => d.id !== id); localStorage.setItem('faturas_manual_v7', JSON.stringify(db)); render(); } }
+    function mudarMes(i) { mesAtivo = i; renderizarTudo({}); ouvirDados(); }
+    function excluir(id) { if(confirm("Remover?")) database.ref(`financeiro/demandas/${id}`).remove(); }
 </script>
 </body>
 </html>
