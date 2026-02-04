@@ -8,15 +8,15 @@
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <style>
         :root { --primary: #00c897; --dark: rgba(18, 18, 18, 0.98); --card-bg: rgba(255, 255, 255, 0.98); }
-        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background-color: #000; background-attachment: fixed; background-position: center; background-repeat: no-repeat; background-size: cover; min-height: 100vh; }
+        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background-color: #000; background-attachment: fixed; background-position: center; background-size: cover; min-height: 100vh; }
         #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; color: white; }
         .login-box { background: var(--dark); padding: 40px; border-radius: 20px; border: 1px solid var(--primary); width: 320px; }
         .btn-entrar { width: 100%; padding: 12px; background: var(--primary); border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; text-transform: uppercase; margin-top: 15px; }
         #main-system { display: none; padding: 20px; }
         .header-banner { width: 100%; height: 280px; background-position: center; background-size: cover; border-bottom: 4px solid var(--primary); margin-bottom: 20px; }
         .container { max-width: 1100px; margin: 0 auto; }
-        .meses-container { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 20px; }
-        .mes-card { min-width: 150px; background: var(--dark); color: white; padding: 15px; border-radius: 12px; text-align: center; cursor: pointer; border: 2px solid transparent; flex-shrink: 0; }
+        .meses-container { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 20px; scrollbar-width: thin; }
+        .mes-card { min-width: 150px; background: var(--dark); color: white; padding: 15px; border-radius: 12px; text-align: center; cursor: pointer; border: 2px solid transparent; flex-shrink: 0; transition: 0.3s; }
         .mes-card.active { border-color: var(--primary); transform: translateY(-3px); }
         .card { background: var(--card-bg); padding: 25px; border-radius: 15px; margin-bottom: 25px; color: #333; }
         table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; }
@@ -26,14 +26,15 @@
         .footer-total { background: var(--dark); color: white; padding: 25px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
         .total-valor { font-size: 28px; color: var(--primary); font-weight: 800; margin: 0; }
         .input-recebido { background: transparent; border: 1px solid #333; color: white; font-size: 28px; font-weight: 800; width: 150px; border-radius: 8px; }
+        .admin-only { display: none; } /* Esconde funções de admin por padrão */
     </style>
 </head>
 <body>
     <div id="login-screen">
         <div class="login-box">
             <h2 style="color: var(--primary);">FINANCEIRO VÍDEOS</h2>
-            <input type="password" id="input-senha" style="width:100%; padding:12px; border-radius:8px; background:#1a1a1a; color:#fff; text-align:center;" placeholder="CHAVE">
-            <button class="btn-entrar" onclick="login()">Acessar</button>
+            <input type="password" id="input-senha" style="width:100%; padding:12px; border-radius:8px; background:#1a1a1a; color:#fff; text-align:center;" placeholder="CHAVE DE ACESSO">
+            <button class="btn-entrar" onclick="login()">Entrar</button>
         </div>
     </div>
 
@@ -41,34 +42,42 @@
         <div class="header-banner" id="banner-visual"></div>
         <div class="container">
             <div class="meses-container" id="carrossel"></div>
-            <div class="card">
+            
+            <div class="card admin-only" id="form-cadastro">
                 <h3>LANÇAR NOVO VÍDEO - <span id="txt-mes"></span></h3>
                 <div style="display: grid; grid-template-columns: 1fr 2fr 1fr 1fr; gap: 12px; align-items: end;">
                     <div><label style="font-size: 10px; font-weight: bold;">ARTE</label><input type="file" id="foto" style="font-size:10px; width: 100%;"></div>
-                    <input type="text" id="nome" placeholder="Nome do Vídeo" style="padding:12px; border-radius:8px; border:1px solid #ddd;">
+                    <input type="text" id="nome" placeholder="Nome do Vídeo" style="padding:12px; border-radius:8px; border:1px solid #ddd; font-weight: bold;">
                     <input type="number" id="valor" placeholder="R$ Unitário" style="padding:12px; border-radius:8px; border:1px solid #ddd;">
                     <input type="number" id="qtd" value="1" style="padding:12px; border-radius:8px; border:1px solid #ddd; text-align: center;">
                 </div>
                 <button class="btn-entrar" style="margin-top:20px;" onclick="salvar()">ADICIONAR À LISTA</button>
             </div>
+
             <div class="card" style="padding:0; overflow: hidden;">
                 <table>
-                    <thead><tr><th>Arte</th><th>Descrição</th><th>Valor</th><th>Qtd</th><th>Subtotal</th><th>Ação</th></tr></thead>
+                    <thead><tr><th>Arte</th><th>Descrição</th><th>Valor</th><th>Qtd</th><th>Subtotal</th><th class="admin-only">Ação</th></tr></thead>
                     <tbody id="lista"></tbody>
                 </table>
                 <div class="footer-total">
                     <div style="display: flex; align-items: center; gap: 30px;">
                         <div><span style="font-size:10px; color:#94a3b8;">TRABALHADO</span><p class="total-valor" id="total-geral">R$ 0,00</p></div>
-                        <div><span style="font-size:10px; color:#94a3b8;">RECEBIDO</span><br><input type="number" id="input-recebido" class="input-recebido" oninput="atualizarRecebidoManual()"></div>
-                        <div style="border-left: 1px solid #333; padding-left: 30px;"><span style="font-size:10px; color:#94a3b8;">A RECEBER</span><p class="total-valor" id="total-pendente" style="color:#ef4444;">R$ 0,00</p></div>
+                        <div>
+                            <span style="font-size:10px; color:#94a3b8;">RECEBIDO</span><br>
+                            <input type="number" id="input-recebido" class="input-recebido" oninput="atualizarRecebidoManual()" readonly>
+                        </div>
+                        <div style="border-left: 1px solid #333; padding-left: 30px;">
+                            <span style="font-size:10px; color:#94a3b8;">A RECEBER</span>
+                            <p class="total-valor" id="total-pendente" style="color:#ef4444;">R$ 0,00</p>
+                        </div>
                     </div>
+                    <button onclick="window.print()" style="background:var(--primary); color:white; border:none; padding:15px 30px; border-radius:10px; font-weight:bold; cursor:pointer;">GERAR PDF</button>
                 </div>
             </div>
         </div>
     </div>
 
 <script>
-    // COPIE OS DADOS DA SUA TELA E COLE AQUI:
     const firebaseConfig = {
         apiKey: "AiZaSyA1B1GTBcJxKL9FK-ikA9mr-kOtaWJ0lxU",
         authDomain: "financeiro-videos-raphael.firebaseapp.com",
@@ -83,19 +92,32 @@
     const database = firebase.database();
     const mesesNomes = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
     let mesAtivo = new Date().getMonth();
+    let isAdmin = false;
 
     function login() {
-        if(document.getElementById('input-senha').value === "2026") {
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('main-system').style.display = 'block';
-            ouvirDados();
+        const senha = document.getElementById('input-senha').value;
+        if(senha === "2026") {
+            isAdmin = true;
+            liberarAcesso();
+        } else if(senha.toUpperCase() === "VIEW") {
+            isAdmin = false;
+            liberarAcesso();
         } else { alert("Chave incorreta!"); }
+    }
+
+    function liberarAcesso() {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('main-system').style.display = 'block';
+        if(isAdmin) {
+            document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
+            document.getElementById('input-recebido').readOnly = false;
+        }
+        ouvirDados();
     }
 
     function ouvirDados() {
         database.ref('financeiro').on('value', (snapshot) => {
-            const data = snapshot.val() || {};
-            renderizarTudo(data);
+            renderizarTudo(snapshot.val() || {});
         });
     }
 
@@ -113,14 +135,24 @@
             Object.values(demandas).filter(d => d.mes == i).forEach(d => totalM += (d.valor * d.qtd));
             car.innerHTML += `
                 <div class="mes-card ${i==mesAtivo?'active':''}" onclick="mudarMes(${i})">
-                    Mês de<br><strong>${m}</strong><br>
+                    <span>Mês de</span><br><strong>${m}</strong><br>
                     <span style="font-size:10px; color:var(--primary)">R$ ${totalM.toFixed(2)}</span>
                 </div>`;
         });
 
         Object.entries(demandas).filter(([id, d]) => d.mes == mesAtivo).forEach(([id, d]) => {
             let sub = d.valor * d.qtd; sTotalMes += sub;
-            list.innerHTML += `<tr><td><img src="${d.foto||''}" class="img-preview" style="display:${d.foto?'block':'none'}"></td><td>${d.nome}</td><td>R$ ${d.valor}</td><td>${d.qtd}</td><td>R$ ${sub.toFixed(2)}</td><td><button onclick="excluir('${id}')" style="border:none; background:none; cursor:pointer;">❌</button></td></tr>`;
+            list.innerHTML += `
+                <tr>
+                    <td><img src="${d.foto||''}" class="img-preview" style="display:${d.foto?'block':'none'}"></td>
+                    <td><strong>${d.nome}</strong></td>
+                    <td>R$ ${d.valor.toFixed(2)}</td>
+                    <td>${d.qtd}</td>
+                    <td><strong>R$ ${sub.toFixed(2)}</strong></td>
+                    <td class="admin-only" style="display:${isAdmin?'table-cell':'none'}">
+                        <button onclick="excluir('${id}')" style="border:none; background:none; cursor:pointer;">❌</button>
+                    </td>
+                </tr>`;
         });
 
         document.getElementById('total-geral').innerText = `R$ ${sTotalMes.toFixed(2)}`;
@@ -130,18 +162,17 @@
     }
 
     function salvar() {
+        if(!isAdmin) return;
         const n = document.getElementById('nome').value;
         const v = parseFloat(document.getElementById('valor').value);
         const q = parseInt(document.getElementById('qtd').value);
         const f = document.getElementById('foto').files[0];
-        
         if(!n || isNaN(v)) return alert("Preencha os dados!");
 
-        const enviar = (imgBase64) => {
-            database.ref('financeiro/demandas').push({ nome: n.toUpperCase(), valor: v, qtd: q, mes: mesAtivo, foto: imgBase64 });
+        const enviar = (img) => {
+            database.ref('financeiro/demandas').push({ nome: n.toUpperCase(), valor: v, qtd: q, mes: mesAtivo, foto: img });
             document.getElementById('nome').value = ''; document.getElementById('valor').value = '';
         };
-
         if(f) {
             const r = new FileReader();
             r.onload = (e) => enviar(e.target.result);
@@ -150,12 +181,13 @@
     }
 
     function atualizarRecebidoManual() {
+        if(!isAdmin) return;
         const valor = parseFloat(document.getElementById('input-recebido').value) || 0;
         database.ref(`financeiro/recebidos/${mesAtivo}`).set(valor);
     }
 
-    function mudarMes(i) { mesAtivo = i; renderizarTudo({}); ouvirDados(); }
-    function excluir(id) { if(confirm("Remover?")) database.ref(`financeiro/demandas/${id}`).remove(); }
+    function mudarMes(i) { mesAtivo = i; ouvirDados(); }
+    function excluir(id) { if(isAdmin && confirm("Remover?")) database.ref(`financeiro/demandas/${id}`).remove(); }
 </script>
 </body>
 </html>
