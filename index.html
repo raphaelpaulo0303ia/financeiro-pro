@@ -9,23 +9,29 @@
     <style>
         :root { --primary: #00c897; --dark: rgba(18, 18, 18, 0.98); --card-bg: rgba(255, 255, 255, 0.98); }
         body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background-color: #000; background-attachment: fixed; background-position: center; background-repeat: no-repeat; background-size: cover; min-height: 100vh; }
+        
         #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; color: white; }
         .login-box { background: var(--dark); padding: 40px; border-radius: 20px; border: 1px solid var(--primary); width: 320px; }
         .btn-entrar { width: 100%; padding: 12px; background: var(--primary); border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; text-transform: uppercase; margin-top: 15px; }
+
         #main-system { display: none; padding: 20px; }
-        .header-nav { position: fixed; top: 10px; right: 10px; z-index: 1000; }
+        .header-nav { position: fixed; top: 10px; right: 10px; z-index: 1000; display: flex; gap: 8px; }
+        .btn-config { background: #000; color: #fff; border: 1px solid var(--primary); padding: 8px 12px; border-radius: 6px; font-size: 10px; cursor: pointer; opacity: 0.7; }
         .btn-sair { background: #ef4444; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-size: 10px; font-weight: bold; }
+        
         .header-banner { width: 100%; height: 280px; background-position: center; background-size: cover; border-bottom: 4px solid var(--primary); margin-bottom: 20px; }
         .container { max-width: 1100px; margin: 0 auto; }
         .meses-container { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 20px; scrollbar-width: thin; }
         .mes-card { min-width: 150px; background: var(--dark); color: white; padding: 15px; border-radius: 12px; text-align: center; cursor: pointer; border: 2px solid transparent; flex-shrink: 0; transition: 0.3s; }
         .mes-card.active { border-color: var(--primary); transform: translateY(-3px); }
         .card { background: var(--card-bg); padding: 25px; border-radius: 15px; margin-bottom: 25px; color: #333; }
+        
         table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; }
         th { background: #f8fafc; text-align: left; padding: 15px; font-size: 11px; color: #94a3b8; text-transform: uppercase; }
         td { padding: 12px 15px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
         .img-preview { width: 55px; height: 55px; border-radius: 6px; object-fit: cover; border: 1px solid #eee; }
         .btn-qty { background: #f1f1f1; border: none; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        
         .footer-total { background: var(--dark); color: white; padding: 25px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
         .total-valor { font-size: 28px; color: var(--primary); font-weight: 800; margin: 0; }
         .input-recebido { background: transparent; border: 1px solid #333; color: white; font-size: 28px; font-weight: 800; width: 150px; border-radius: 8px; }
@@ -42,7 +48,13 @@
     </div>
 
     <div id="main-system">
-        <div class="header-nav"><button class="btn-sair" onclick="sair()">SAIR / TROCAR CONTA</button></div>
+        <div class="header-nav">
+            <button class="btn-config admin-only" onclick="document.getElementById('in-bg').click()">+ FUNDO</button>
+            <button class="btn-config admin-only" onclick="document.getElementById('in-bn').click()">+ BANNER</button>
+            <input type="file" id="in-bg" hidden onchange="processarVisual('bg', this)">
+            <input type="file" id="in-bn" hidden onchange="processarVisual('bn', this)">
+            <button class="btn-sair" onclick="sair()">SAIR</button>
+        </div>
         <div class="header-banner" id="banner-visual"></div>
         <div class="container">
             <div class="meses-container" id="carrossel"></div>
@@ -97,23 +109,39 @@
 
     function login(auto = false) {
         const senha = document.getElementById('input-senha').value;
-        // NOVA SENHA ADMIN: MIGUEL22012019
         if(senha === "MIGUEL22012019") { isAdmin = true; localStorage.setItem('chave_financeiro', senha); liberarAcesso(); }
-        // NOVA SENHA PARCEIRO: ARTECIA
         else if(senha.toUpperCase() === "ARTECIA") { isAdmin = false; localStorage.setItem('chave_financeiro', senha); liberarAcesso(); }
         else { if(!auto) alert("Chave incorreta!"); }
     }
 
     function sair() { localStorage.removeItem('chave_financeiro'); location.reload(); }
 
+    function processarVisual(tipo, input) {
+        if(!input.files[0]) return;
+        const reader = new FileReader();
+        reader.onload = (e) => { 
+            localStorage.setItem(tipo === 'bg' ? 'custom_bg' : 'custom_bn', e.target.result); 
+            ouvirDados(); // Força atualização visual
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+
     function liberarAcesso() {
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('main-system').style.display = 'block';
-        if(isAdmin) { document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block'); document.getElementById('input-recebido').readOnly = false; }
+        if(isAdmin) { 
+            document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block'); 
+            document.getElementById('input-recebido').readOnly = false; 
+        }
         ouvirDados();
     }
 
-    function ouvirDados() { database.ref('financeiro').on('value', (snapshot) => renderizarTudo(snapshot.val() || {})); }
+    function ouvirDados() { 
+        const bg = localStorage.getItem('custom_bg'); const bn = localStorage.getItem('custom_bn');
+        if(bg) document.body.style.backgroundImage = `url(${bg})`;
+        if(bn) document.getElementById('banner-visual').style.backgroundImage = `url(${bn})`;
+        database.ref('financeiro').on('value', (snapshot) => renderizarTudo(snapshot.val() || {})); 
+    }
 
     function renderizarTudo(data) {
         const car = document.getElementById('carrossel'); car.innerHTML = '';
