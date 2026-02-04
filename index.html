@@ -15,11 +15,12 @@
         .btn-entrar { width: 100%; padding: 12px; background: var(--primary); border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: #000; text-transform: uppercase; margin-top: 15px; }
 
         #main-system { display: none; padding: 20px; }
-        .header-nav { position: fixed; top: 10px; right: 10px; z-index: 1000; display: flex; gap: 8px; }
+        .header-nav { position: fixed; top: 10px; right: 10px; z-index: 1000; display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; max-width: 400px; }
         .btn-config { background: #000; color: #fff; border: 1px solid var(--primary); padding: 8px 12px; border-radius: 6px; font-size: 10px; cursor: pointer; opacity: 0.8; }
+        .btn-remove { background: #333; color: #fff; border: 1px solid #555; padding: 8px 12px; border-radius: 6px; font-size: 10px; cursor: pointer; }
         .btn-sair { background: #ef4444; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-size: 10px; font-weight: bold; }
         
-        .header-banner { width: 100%; height: 280px; background-position: center; background-size: cover; border-bottom: 4px solid var(--primary); margin-bottom: 20px; }
+        .header-banner { width: 100%; height: 280px; background-position: center; background-size: cover; border-bottom: 4px solid var(--primary); margin-bottom: 20px; display: none; }
         .container { max-width: 1100px; margin: 0 auto; }
         .meses-container { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 20px; scrollbar-width: thin; }
         .mes-card { min-width: 150px; background: var(--dark); color: white; padding: 15px; border-radius: 12px; text-align: center; cursor: pointer; border: 2px solid transparent; flex-shrink: 0; transition: 0.3s; }
@@ -30,13 +31,11 @@
         th { background: #f8fafc; text-align: left; padding: 15px; font-size: 11px; color: #94a3b8; text-transform: uppercase; }
         td { padding: 12px 15px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
         .img-preview { width: 55px; height: 55px; border-radius: 6px; object-fit: cover; border: 1px solid #eee; }
-        .btn-qty { background: #eee; border: 1px solid #ddd; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-        .btn-qty:hover { background: var(--primary); color: #000; border-color: var(--primary); }
+        .btn-qty { background: #eee; border: 1px solid #ddd; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; font-weight: bold; }
         
         .footer-total { background: var(--dark); color: white; padding: 25px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
         .total-valor { font-size: 28px; color: var(--primary); font-weight: 800; margin: 0; }
         .input-recebido { background: transparent; border: 1px solid #333; color: white; font-size: 28px; font-weight: 800; width: 150px; border-radius: 8px; outline: none; }
-        .input-recebido:focus { border-color: var(--primary); }
         .admin-only { display: none; }
     </style>
 </head>
@@ -53,6 +52,8 @@
         <div class="header-nav">
             <button class="btn-config admin-only" onclick="document.getElementById('in-bg').click()">+ FUNDO</button>
             <button class="btn-config admin-only" onclick="document.getElementById('in-bn').click()">+ BANNER</button>
+            <button class="btn-remove admin-only" onclick="removerVisual('bg')">REMOVER FUNDO</button>
+            <button class="btn-remove admin-only" onclick="removerVisual('bn')">REMOVER BANNER</button>
             <input type="file" id="in-bg" hidden onchange="processarVisual('bg', this)">
             <input type="file" id="in-bn" hidden onchange="processarVisual('bn', this)">
             <button class="btn-sair" onclick="sair()">SAIR</button>
@@ -81,7 +82,7 @@
                         <div><span style="font-size:10px; color:#94a3b8;">RECEBIDO</span><br><input type="number" id="input-recebido" class="input-recebido" oninput="atualizarRecebidoManual()" readonly></div>
                         <div style="border-left: 1px solid #333; padding-left: 30px;"><span style="font-size:10px; color:#94a3b8;">A RECEBER</span><p class="total-valor" id="total-pendente" style="color:#ef4444;">R$ 0,00</p></div>
                     </div>
-                    <button onclick="window.print()" style="background:var(--primary); color:#000; border:none; padding:15px 30px; border-radius:10px; font-weight:bold; cursor:pointer; text-transform:uppercase;">GERAR PDF</button>
+                    <button onclick="window.print()" style="background:var(--primary); color:#000; border:none; padding:15px 30px; border-radius:10px; font-weight:bold; cursor:pointer;">GERAR PDF</button>
                 </div>
             </div>
         </div>
@@ -125,6 +126,13 @@
         reader.readAsDataURL(input.files[0]);
     }
 
+    function removerVisual(tipo) {
+        localStorage.removeItem(tipo === 'bg' ? 'custom_bg' : 'custom_bn');
+        if(tipo === 'bg') document.body.style.backgroundImage = 'none';
+        else document.getElementById('banner-visual').style.display = 'none';
+        ouvirDados();
+    }
+
     function liberarAcesso() {
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('main-system').style.display = 'block';
@@ -133,9 +141,20 @@
     }
 
     function ouvirDados() { 
-        const bg = localStorage.getItem('custom_bg'); const bn = localStorage.getItem('custom_bn');
+        const bg = localStorage.getItem('custom_bg'); 
+        const bn = localStorage.getItem('custom_bn');
+        const bannerEl = document.getElementById('banner-visual');
+
         if(bg) document.body.style.backgroundImage = `url(${bg})`;
-        if(bn) document.getElementById('banner-visual').style.backgroundImage = `url(${bn})`;
+        else document.body.style.backgroundImage = 'none';
+
+        if(bn) {
+            bannerEl.style.backgroundImage = `url(${bn})`;
+            bannerEl.style.display = 'block';
+        } else {
+            bannerEl.style.display = 'none';
+        }
+
         database.ref('financeiro').on('value', (snapshot) => renderizarTudo(snapshot.val() || {})); 
     }
 
