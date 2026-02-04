@@ -9,30 +9,25 @@
     <style>
         :root { --primary: #ff6a00; --dark: rgba(18, 18, 18, 0.98); --card-bg: rgba(255, 255, 255, 0.98); }
         body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background-color: #000; background-attachment: fixed; background-position: center; background-repeat: no-repeat; background-size: cover; min-height: 100vh; }
-        
         #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; color: white; }
         .login-box { background: var(--dark); padding: 40px; border-radius: 20px; border: 1px solid var(--primary); width: 320px; }
         .btn-entrar { width: 100%; padding: 12px; background: var(--primary); border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: #000; text-transform: uppercase; margin-top: 15px; }
-
         #main-system { display: none; padding: 20px; }
-        .header-nav { position: fixed; top: 10px; right: 10px; z-index: 1000; display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; max-width: 400px; }
+        .header-nav { position: fixed; top: 10px; right: 10px; z-index: 1000; display: flex; gap: 8px; }
         .btn-config { background: #000; color: #fff; border: 1px solid var(--primary); padding: 8px 12px; border-radius: 6px; font-size: 10px; cursor: pointer; opacity: 0.8; }
         .btn-remove { background: #333; color: #fff; border: 1px solid #555; padding: 8px 12px; border-radius: 6px; font-size: 10px; cursor: pointer; }
         .btn-sair { background: #ef4444; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-size: 10px; font-weight: bold; }
-        
-        .header-banner { width: 100%; height: 280px; background-position: center; background-size: cover; border-bottom: 4px solid var(--primary); margin-bottom: 20px; display: none; }
+        .header-banner { width: 100%; max-width: 1100px; height: 250px; margin: 0 auto 20px auto; background-position: center; background-size: cover; border: 2px solid var(--primary); border-radius: 15px; display: none; }
         .container { max-width: 1100px; margin: 0 auto; }
         .meses-container { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 20px; scrollbar-width: thin; }
         .mes-card { min-width: 150px; background: var(--dark); color: white; padding: 15px; border-radius: 12px; text-align: center; cursor: pointer; border: 2px solid transparent; flex-shrink: 0; transition: 0.3s; }
         .mes-card.active { border-color: var(--primary); transform: translateY(-3px); box-shadow: 0 0 15px rgba(255, 106, 0, 0.3); }
         .card { background: var(--card-bg); padding: 25px; border-radius: 15px; margin-bottom: 25px; color: #333; }
-        
         table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; }
         th { background: #f8fafc; text-align: left; padding: 15px; font-size: 11px; color: #94a3b8; text-transform: uppercase; }
         td { padding: 12px 15px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
         .img-preview { width: 55px; height: 55px; border-radius: 6px; object-fit: cover; border: 1px solid #eee; }
         .btn-qty { background: #eee; border: 1px solid #ddd; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        
         .footer-total { background: var(--dark); color: white; padding: 25px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
         .total-valor { font-size: 28px; color: var(--primary); font-weight: 800; margin: 0; }
         .input-recebido { background: transparent; border: 1px solid #333; color: white; font-size: 28px; font-weight: 800; width: 150px; border-radius: 8px; outline: none; }
@@ -47,13 +42,12 @@
             <button class="btn-entrar" onclick="login()">Entrar</button>
         </div>
     </div>
-
     <div id="main-system">
         <div class="header-nav">
             <button class="btn-config admin-only" onclick="document.getElementById('in-bg').click()">+ FUNDO</button>
             <button class="btn-config admin-only" onclick="document.getElementById('in-bn').click()">+ BANNER</button>
-            <button class="btn-remove admin-only" onclick="removerVisual('bg')">REMOVER FUNDO</button>
-            <button class="btn-remove admin-only" onclick="removerVisual('bn')">REMOVER BANNER</button>
+            <button class="btn-remove admin-only" onclick="removerVisual('bg')">REM. FUNDO</button>
+            <button class="btn-remove admin-only" onclick="removerVisual('bn')">REM. BANNER</button>
             <input type="file" id="in-bg" hidden onchange="processarVisual('bg', this)">
             <input type="file" id="in-bn" hidden onchange="processarVisual('bn', this)">
             <button class="btn-sair" onclick="sair()">SAIR</button>
@@ -87,132 +81,49 @@
             </div>
         </div>
     </div>
-
 <script>
-    const firebaseConfig = {
-        apiKey: "AiZaSyA1B1GTBcJxKL9FK-ikA9mr-kOtaWJ0lxU",
-        authDomain: "financeiro-videos-raphael.firebaseapp.com",
-        databaseURL: "https://financeiro-videos-raphael-default-rtdb.firebaseio.com",
-        projectId: "financeiro-videos-raphael",
-        storageBucket: "financeiro-videos-raphael.firebasestorage.app",
-        messagingSenderId: "94002509090",
-        appId: "1:94002509090:web:f27917dd912bda7364e17b"
-    };
-
+    const firebaseConfig = { apiKey: "AiZaSyA1B1GTBcJxKL9FK-ikA9mr-kOtaWJ0lxU", authDomain: "financeiro-videos-raphael.firebaseapp.com", databaseURL: "https://financeiro-videos-raphael-default-rtdb.firebaseio.com", projectId: "financeiro-videos-raphael", storageBucket: "financeiro-videos-raphael.firebasestorage.app", messagingSenderId: "94002509090", appId: "1:94002509090:web:f27917dd912bda7364e17b" };
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
     const mesesNomes = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
     let mesAtivo = new Date().getMonth();
     let isAdmin = false;
-
-    window.onload = () => {
-        const chaveSalva = localStorage.getItem('chave_financeiro');
-        if(chaveSalva) { document.getElementById('input-senha').value = chaveSalva; login(true); }
-    };
-
+    window.onload = () => { const chaveSalva = localStorage.getItem('chave_financeiro'); if(chaveSalva) { document.getElementById('input-senha').value = chaveSalva; login(true); } };
     function login(auto = false) {
         const senha = document.getElementById('input-senha').value;
         if(senha === "MIGUEL22012019") { isAdmin = true; localStorage.setItem('chave_financeiro', senha); liberarAcesso(); }
         else if(senha.toUpperCase() === "ARTECIA") { isAdmin = false; localStorage.setItem('chave_financeiro', senha); liberarAcesso(); }
         else { if(!auto) alert("Chave incorreta!"); }
     }
-
     function sair() { localStorage.removeItem('chave_financeiro'); location.reload(); }
-
-    function processarVisual(tipo, input) {
-        if(!input.files[0]) return;
-        const reader = new FileReader();
-        reader.onload = (e) => { localStorage.setItem(tipo === 'bg' ? 'custom_bg' : 'custom_bn', e.target.result); ouvirDados(); };
-        reader.readAsDataURL(input.files[0]);
-    }
-
-    function removerVisual(tipo) {
-        localStorage.removeItem(tipo === 'bg' ? 'custom_bg' : 'custom_bn');
-        if(tipo === 'bg') document.body.style.backgroundImage = 'none';
-        else document.getElementById('banner-visual').style.display = 'none';
-        ouvirDados();
-    }
-
-    function liberarAcesso() {
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('main-system').style.display = 'block';
-        if(isAdmin) { document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block'); document.getElementById('input-recebido').readOnly = false; }
-        ouvirDados();
-    }
-
+    function processarVisual(tipo, input) { if(!input.files[0]) return; const reader = new FileReader(); reader.onload = (e) => { localStorage.setItem(tipo === 'bg' ? 'custom_bg' : 'custom_bn', e.target.result); ouvirDados(); }; reader.readAsDataURL(input.files[0]); }
+    function removerVisual(tipo) { localStorage.removeItem(tipo === 'bg' ? 'custom_bg' : 'custom_bn'); ouvirDados(); }
+    function liberarAcesso() { document.getElementById('login-screen').style.display = 'none'; document.getElementById('main-system').style.display = 'block'; if(isAdmin) { document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block'); document.getElementById('input-recebido').readOnly = false; } ouvirDados(); }
     function ouvirDados() { 
-        const bg = localStorage.getItem('custom_bg'); 
-        const bn = localStorage.getItem('custom_bn');
-        const bannerEl = document.getElementById('banner-visual');
-
-        if(bg) document.body.style.backgroundImage = `url(${bg})`;
-        else document.body.style.backgroundImage = 'none';
-
-        if(bn) {
-            bannerEl.style.backgroundImage = `url(${bn})`;
-            bannerEl.style.display = 'block';
-        } else {
-            bannerEl.style.display = 'none';
-        }
-
+        const bg = localStorage.getItem('custom_bg'); const bn = localStorage.getItem('custom_bn'); const bannerEl = document.getElementById('banner-visual');
+        document.body.style.backgroundImage = bg ? `url(${bg})` : 'none';
+        if(bn) { bannerEl.style.backgroundImage = `url(${bn})`; bannerEl.style.display = 'block'; } else { bannerEl.style.display = 'none'; }
         database.ref('financeiro').on('value', (snapshot) => renderizarTudo(snapshot.val() || {})); 
     }
-
     function renderizarTudo(data) {
-        const car = document.getElementById('carrossel'); car.innerHTML = '';
-        const list = document.getElementById('lista'); list.innerHTML = '';
+        const car = document.getElementById('carrossel'), list = document.getElementById('lista'); car.innerHTML = ''; list.innerHTML = '';
         document.getElementById('txt-mes').innerText = mesesNomes[mesAtivo];
-        let sTotalMes = 0;
-        const demandas = data.demandas || {};
-        const recebidos = data.recebidos || {};
-
+        let sTotalMes = 0; const demandas = data.demandas || {}, recebidos = data.recebidos || {};
         mesesNomes.forEach((m, i) => {
-            let totalM = 0;
-            Object.values(demandas).filter(d => d.mes == i).forEach(d => totalM += (d.valor * d.qtd));
+            let totalM = 0; Object.values(demandas).filter(d => d.mes == i).forEach(d => totalM += (d.valor * d.qtd));
             car.innerHTML += `<div class="mes-card ${i==mesAtivo?'active':''}" onclick="mudarMes(${i})">Mês de<br><strong>${m}</strong><br><span style="font-size:10px; color:var(--primary)">R$ ${totalM.toFixed(2)}</span></div>`;
         });
-
         Object.entries(demandas).filter(([id, d]) => d.mes == mesAtivo).forEach(([id, d]) => {
             let sub = d.valor * d.qtd; sTotalMes += sub;
-            list.innerHTML += `<tr>
-                <td><img src="${d.foto||''}" class="img-preview" style="display:${d.foto?'block':'none'}"></td>
-                <td><strong>${d.nome}</strong></td>
-                <td>R$ ${d.valor.toFixed(2)}</td>
-                <td style="text-align:center;">
-                    ${isAdmin ? `<button class="btn-qty" onclick="ajustarQtd('${id}', -1)">-</button>` : ''}
-                    <span style="margin:0 10px; font-weight:bold;">${d.qtd}</span>
-                    ${isAdmin ? `<button class="btn-qty" onclick="ajustarQtd('${id}', 1)">+</button>` : ''}
-                </td>
-                <td><strong>R$ ${sub.toFixed(2)}</strong></td>
-                <td class="admin-only" style="display:${isAdmin?'table-cell':'none'}"><button onclick="excluir('${id}')" style="border:none; background:none; cursor:pointer;">❌</button></td>
-            </tr>`;
+            list.innerHTML += `<tr><td><img src="${d.foto||''}" class="img-preview" style="display:${d.foto?'block':'none'}"></td><td><strong>${d.nome}</strong></td><td>R$ ${d.valor.toFixed(2)}</td><td style="text-align:center;">${isAdmin ? `<button class="btn-qty" onclick="ajustarQtd('${id}', -1)">-</button>` : ''}<span style="margin:0 10px; font-weight:bold;">${d.qtd}</span>${isAdmin ? `<button class="btn-qty" onclick="ajustarQtd('${id}', 1)">+</button>` : ''}</td><td><strong>R$ ${sub.toFixed(2)}</strong></td><td class="admin-only" style="display:${isAdmin?'table-cell':'none'}"><button onclick="excluir('${id}')" style="border:none; background:none; cursor:pointer;">❌</button></td></tr>`;
         });
         document.getElementById('total-geral').innerText = `R$ ${sTotalMes.toFixed(2)}`;
-        const valorRec = recebidos[mesAtivo] || 0;
-        document.getElementById('input-recebido').value = valorRec;
+        const valorRec = recebidos[mesAtivo] || 0; document.getElementById('input-recebido').value = valorRec;
         document.getElementById('total-pendente').innerText = `R$ ${(sTotalMes - valorRec).toFixed(2)}`;
     }
-
-    function ajustarQtd(id, delta) {
-        database.ref(`financeiro/demandas/${id}`).once('value', (snapshot) => {
-            const item = snapshot.val();
-            if(item) { database.ref(`financeiro/demandas/${id}/qtd`).set(Math.max(1, item.qtd + delta)); }
-        });
-    }
-
-    function salvar() {
-        if(!isAdmin) return;
-        const n = document.getElementById('nome').value, v = parseFloat(document.getElementById('valor').value), q = parseInt(document.getElementById('qtd').value), f = document.getElementById('foto').files[0];
-        if(!n || isNaN(v)) return alert("Preencha os dados!");
-        const enviar = (img) => { database.ref('financeiro/demandas').push({ nome: n.toUpperCase(), valor: v, qtd: q, mes: mesAtivo, foto: img }); document.getElementById('nome').value = ''; document.getElementById('valor').value = ''; };
-        if(f) { const r = new FileReader(); r.onload = (e) => enviar(e.target.result); r.readAsDataURL(f); } else enviar('');
-    }
-
-    function atualizarRecebidoManual() {
-        if(!isAdmin) return;
-        database.ref(`financeiro/recebidos/${mesAtivo}`).set(parseFloat(document.getElementById('input-recebido').value) || 0);
-    }
-
+    function ajustarQtd(id, delta) { database.ref(`financeiro/demandas/${id}`).once('value', (snapshot) => { const item = snapshot.val(); if(item) { database.ref(`financeiro/demandas/${id}/qtd`).set(Math.max(1, item.qtd + delta)); } }); }
+    function salvar() { if(!isAdmin) return; const n = document.getElementById('nome').value, v = parseFloat(document.getElementById('valor').value), q = parseInt(document.getElementById('qtd').value), f = document.getElementById('foto').files[0]; if(!n || isNaN(v)) return alert("Preencha os dados!"); const enviar = (img) => { database.ref('financeiro/demandas').push({ nome: n.toUpperCase(), valor: v, qtd: q, mes: mesAtivo, foto: img }); document.getElementById('nome').value = ''; document.getElementById('valor').value = ''; }; if(f) { const r = new FileReader(); r.onload = (e) => enviar(e.target.result); r.readAsDataURL(f); } else enviar(''); }
+    function atualizarRecebidoManual() { if(!isAdmin) return; database.ref(`financeiro/recebidos/${mesAtivo}`).set(parseFloat(document.getElementById('input-recebido').value) || 0); }
     function mudarMes(i) { mesAtivo = i; ouvirDados(); }
     function excluir(id) { if(isAdmin && confirm("Remover?")) database.ref(`financeiro/demandas/${id}`).remove(); }
 </script>
