@@ -349,8 +349,8 @@ tbody td { padding: 10px 14px; vertical-align: middle; color: #ddd; }
     <div id="dashboard" class="tab-section">
       <div class="metrics-grid">
         <div class="metric-card"><div class="metric-lbl">Total Geral (Ano)</div><div class="metric-val orange" id="d-total">R$ 0,00</div></div>
-        <div class="metric-card"><div class="metric-lbl">Total Pago</div><div class="metric-val green" id="d-pago">R$ 0,00</div></div>
-        <div class="metric-card"><div class="metric-lbl">A Receber</div><div class="metric-val yellow" id="d-pendente">R$ 0,00</div></div>
+        <div class="metric-card"><div class="metric-lbl">Total Pago (Ano)</div><div class="metric-val green" id="d-pago">R$ 0,00</div></div>
+        <div class="metric-card"><div class="metric-lbl">A Receber (Mês)</div><div class="metric-val yellow" id="d-pendente">R$ 0,00</div></div>
         <div class="metric-card"><div class="metric-lbl">Vídeos este Mês</div><div class="metric-val" id="d-qtd">0</div></div>
         <div class="metric-card"><div class="metric-lbl">Ticket Médio</div><div class="metric-val orange" id="d-ticket">R$ 0,00</div></div>
         <div class="metric-card"><div class="metric-lbl">Melhor Mês</div><div class="metric-val" id="d-melhor">—</div></div>
@@ -514,9 +514,13 @@ function renderDashboard(demandas, recebidos, statusMap) {
   const todos = Object.entries(demandas);
   const totalAno = todos.reduce((s, [, d]) => s + d.valor * d.qtd, 0);
   const totalPago = todos.filter(([id]) => (statusMap[id] || 'pendente') === 'pago').reduce((s, [, d]) => s + d.valor * d.qtd, 0);
-  const totalPend = Math.max(0, totalAno - totalPago);
   const qtdMes = todos.filter(([, d]) => d.mes == mesAtivo).length;
-  const ticket = todos.length ? totalAno / todos.length : 0;
+  const ticket = qtdMes ? todos.filter(([, d]) => d.mes == mesAtivo).reduce((s, [, d]) => s + d.valor * d.qtd, 0) / qtdMes : 0;
+
+  const itensMes = todos.filter(([, d]) => d.mes == mesAtivo);
+  const totalMes = itensMes.reduce((s, [, d]) => s + d.valor * d.qtd, 0);
+  const recMes = recebidos[mesAtivo] || 0;
+  const totalPend = Math.max(0, totalMes - recMes);
 
   let melhorMes = '—', melhorVal = 0;
   MESES.forEach((m, i) => {
