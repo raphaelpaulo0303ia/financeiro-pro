@@ -1,131 +1,665 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financeiro Vídeos | Raphael Designer</title>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
-    <style>
-        :root { --primary: #ff6a00; --dark: rgba(18, 18, 18, 0.98); --card-bg: rgba(255, 255, 255, 0.98); }
-        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background-color: #000; background-attachment: fixed; background-position: center; background-repeat: no-repeat; background-size: cover; min-height: 100vh; }
-        #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; color: white; }
-        .login-box { background: var(--dark); padding: 40px; border-radius: 20px; border: 1px solid var(--primary); width: 320px; }
-        .btn-entrar { width: 100%; padding: 12px; background: var(--primary); border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: #000; text-transform: uppercase; margin-top: 15px; }
-        #main-system { display: none; padding: 20px; }
-        .header-nav { position: fixed; top: 10px; right: 10px; z-index: 1000; display: flex; gap: 8px; }
-        .btn-config { background: #000; color: #fff; border: 1px solid var(--primary); padding: 8px 12px; border-radius: 6px; font-size: 10px; cursor: pointer; opacity: 0.8; }
-        .btn-remove { background: #333; color: #fff; border: 1px solid #555; padding: 8px 12px; border-radius: 6px; font-size: 10px; cursor: pointer; }
-        .btn-sair { background: #ef4444; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-size: 10px; font-weight: bold; }
-        .header-banner { width: 100%; max-width: 1100px; height: 250px; margin: 0 auto 20px auto; background-position: center; background-size: cover; border: 2px solid var(--primary); border-radius: 15px; display: none; }
-        .container { max-width: 1100px; margin: 0 auto; }
-        .meses-container { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 20px; scrollbar-width: thin; }
-        .mes-card { min-width: 150px; background: var(--dark); color: white; padding: 15px; border-radius: 12px; text-align: center; cursor: pointer; border: 2px solid transparent; flex-shrink: 0; transition: 0.3s; }
-        .mes-card.active { border-color: var(--primary); transform: translateY(-3px); box-shadow: 0 0 15px rgba(255, 106, 0, 0.3); }
-        .card { background: var(--card-bg); padding: 25px; border-radius: 15px; margin-bottom: 25px; color: #333; }
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; }
-        th { background: #f8fafc; text-align: left; padding: 15px; font-size: 11px; color: #94a3b8; text-transform: uppercase; }
-        td { padding: 12px 15px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
-        .img-preview { width: 55px; height: 55px; border-radius: 6px; object-fit: cover; border: 1px solid #eee; }
-        .btn-qty { background: #eee; border: 1px solid #ddd; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        .footer-total { background: var(--dark); color: white; padding: 25px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
-        .total-valor { font-size: 28px; color: var(--primary); font-weight: 800; margin: 0; }
-        .input-recebido { background: transparent; border: 1px solid #333; color: white; font-size: 28px; font-weight: 800; width: 150px; border-radius: 8px; outline: none; }
-        .admin-only { display: none; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Financeiro Vídeos | Raphael Designer</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/firebase@9.17.1/firebase-app-compat.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/firebase@9.17.1/firebase-database-compat.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --primary: #ff6a00;
+  --primary-dark: #cc5200;
+  --primary-glow: rgba(255,106,0,0.25);
+  --dark: #0a0a0a;
+  --dark2: #111;
+  --dark3: #181818;
+  --dark4: #222;
+  --border: rgba(255,255,255,0.07);
+  --text: #f0f0f0;
+  --muted: #888;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Barlow', sans-serif;
+  background: var(--dark);
+  color: var(--text);
+  min-height: 100vh;
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.72);
+  z-index: 0;
+  pointer-events: none;
+}
+#login-screen {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.92);
+}
+.login-box {
+  background: var(--dark3);
+  border: 1px solid var(--primary);
+  border-radius: 18px;
+  padding: 44px 40px;
+  width: 340px;
+  text-align: center;
+  box-shadow: 0 0 60px rgba(255,106,0,0.15);
+}
+.login-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 28px; font-weight: 800;
+  color: var(--primary); letter-spacing: 3px; margin-bottom: 6px;
+}
+.login-sub { font-size: 11px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 28px; }
+.login-input {
+  width: 100%; padding: 13px 16px;
+  background: var(--dark); border: 1px solid var(--dark4);
+  border-radius: 10px; color: #fff; font-size: 15px;
+  text-align: center; letter-spacing: 3px; outline: none; transition: border .2s;
+}
+.login-input:focus { border-color: var(--primary); }
+.btn-entrar {
+  width: 100%; padding: 13px;
+  background: var(--primary); border: none; border-radius: 10px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+  color: #000; cursor: pointer; margin-top: 14px; transition: background .2s, transform .1s;
+}
+.btn-entrar:hover { background: var(--primary-dark); }
+.btn-entrar:active { transform: scale(.98); }
+#main-system { display: none; position: relative; z-index: 1; }
+.header-nav { position: fixed; top: 12px; right: 14px; z-index: 200; display: flex; gap: 7px; }
+.nav-btn {
+  padding: 7px 13px; border-radius: 7px;
+  font-size: 11px; font-weight: 600; letter-spacing: .8px;
+  cursor: pointer; border: 1px solid;
+  font-family: 'Barlow Condensed', sans-serif; text-transform: uppercase; transition: all .15s;
+}
+.nav-btn.orange { background: rgba(255,106,0,.12); color: var(--primary); border-color: rgba(255,106,0,.4); }
+.nav-btn.orange:hover { background: var(--primary); color: #000; }
+.nav-btn.gray { background: rgba(255,255,255,.06); color: #aaa; border-color: rgba(255,255,255,.12); }
+.nav-btn.gray:hover { background: rgba(255,255,255,.12); color: #fff; }
+.nav-btn.red { background: rgba(239,68,68,.12); color: #ef4444; border-color: rgba(239,68,68,.3); }
+.nav-btn.red:hover { background: #ef4444; color: #fff; }
+.header-banner {
+  width: 100%; max-width: 1100px; height: 230px; margin: 0 auto 18px auto;
+  background-position: center; background-size: cover;
+  border: 2px solid var(--primary); border-radius: 16px; display: none;
+  box-shadow: 0 0 40px rgba(255,106,0,0.2);
+}
+.container { max-width: 1100px; margin: 0 auto; padding: 20px 16px 40px; }
+.meses-container {
+  display: flex; gap: 10px; overflow-x: auto;
+  padding-bottom: 12px; margin-bottom: 22px;
+  scrollbar-width: thin; scrollbar-color: var(--primary) transparent;
+}
+.meses-container::-webkit-scrollbar { height: 3px; }
+.meses-container::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 3px; }
+.mes-card {
+  min-width: 130px; flex-shrink: 0; background: var(--dark3);
+  border: 1.5px solid var(--border); border-radius: 12px; padding: 13px 14px;
+  text-align: center; cursor: pointer; transition: all .2s;
+}
+.mes-card:hover { border-color: rgba(255,106,0,.4); background: var(--dark4); }
+.mes-card.active {
+  border-color: var(--primary); background: rgba(255,106,0,.08);
+  transform: translateY(-3px); box-shadow: 0 6px 24px rgba(255,106,0,.2);
+}
+.mes-card-label { font-size: 10px; color: var(--muted); letter-spacing: .5px; }
+.mes-card-name { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; color: #fff; margin: 2px 0; }
+.mes-card-valor { font-size: 12px; font-weight: 600; color: var(--primary); }
+.mes-card-valor.zero { color: #444; }
+.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+.tab {
+  padding: 9px 18px; font-size: 13px; font-weight: 500; color: var(--muted); cursor: pointer;
+  border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all .15s;
+  font-family: 'Barlow Condensed', sans-serif; letter-spacing: .8px; text-transform: uppercase;
+}
+.tab:hover { color: #ccc; }
+.tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+.tab-section { display: none; }
+.tab-section.active { display: block; }
+.form-panel { background: var(--dark3); border: 1px solid var(--border); border-radius: 14px; padding: 20px 22px; margin-bottom: 16px; }
+.form-title {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 700;
+  color: var(--primary); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 14px;
+}
+.form-grid { display: grid; grid-template-columns: auto 1fr 140px 90px; gap: 10px; align-items: end; margin-bottom: 12px; }
+.upload-col { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.upload-area {
+  width: 62px; height: 62px; border-radius: 9px;
+  border: 1.5px dashed #444; background: var(--dark);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; overflow: hidden; position: relative; transition: border-color .2s;
+}
+.upload-area:hover { border-color: var(--primary); }
+.upload-area img { width: 100%; height: 100%; object-fit: cover; }
+.upload-area input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.upload-icon { font-size: 22px; color: #444; }
+.upload-hint { font-size: 9px; color: #555; letter-spacing: .5px; text-transform: uppercase; }
+.f-group { display: flex; flex-direction: column; gap: 5px; }
+.f-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; font-weight: 600; }
+.f-input {
+  padding: 10px 12px; background: var(--dark); border: 1px solid #2a2a2a;
+  border-radius: 9px; color: #fff; font-size: 13px;
+  font-family: 'Barlow', sans-serif; width: 100%; outline: none; transition: border-color .2s;
+}
+.f-input:focus { border-color: var(--primary); }
+.f-input::placeholder { color: #444; }
+.form-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.btn-add {
+  width: 100%; padding: 12px; background: var(--primary); border: none;
+  border-radius: 10px; color: #000; font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+  cursor: pointer; transition: background .15s, transform .1s;
+}
+.btn-add:hover { background: var(--primary-dark); color: #fff; }
+.btn-add:active { transform: scale(.99); }
+.table-wrap { background: var(--dark3); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th {
+  background: var(--dark2); text-align: left; padding: 11px 14px;
+  font-size: 10px; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: .8px;
+  border-bottom: 1px solid var(--border); font-family: 'Barlow Condensed', sans-serif;
+}
+tbody tr { border-bottom: 1px solid rgba(255,255,255,.04); transition: background .12s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: rgba(255,255,255,.025); }
+tbody td { padding: 10px 14px; vertical-align: middle; color: #ddd; }
+.img-preview { width: 52px; height: 52px; border-radius: 7px; object-fit: cover; border: 1px solid #2a2a2a; display: block; }
+.img-placeholder {
+  width: 52px; height: 52px; border-radius: 7px; background: var(--dark); border: 1px solid #222;
+  display: flex; align-items: center; justify-content: center; font-size: 20px; color: #333;
+}
+.video-name { font-weight: 600; color: #fff; font-size: 13px; }
+.qty-ctrl { display: flex; align-items: center; gap: 6px; }
+.btn-qty {
+  width: 26px; height: 26px; border-radius: 6px; border: 1px solid #333; background: var(--dark);
+  color: #ccc; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  line-height: 1; transition: all .12s;
+}
+.btn-qty:hover { border-color: var(--primary); color: var(--primary); }
+.qty-val { font-weight: 700; color: #fff; min-width: 18px; text-align: center; }
+.badge {
+  display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 999px;
+  font-size: 11px; font-weight: 600; cursor: pointer; transition: all .15s;
+  font-family: 'Barlow Condensed', sans-serif; letter-spacing: .5px;
+}
+.badge-pago { background: rgba(34,197,94,.15); color: #4ade80; border: 1px solid rgba(74,222,128,.2); }
+.badge-pago:hover { background: rgba(34,197,94,.25); }
+.badge-pendente { background: rgba(255,106,0,.12); color: var(--primary); border: 1px solid rgba(255,106,0,.2); }
+.badge-pendente:hover { background: rgba(255,106,0,.22); }
+.del-btn { background: none; border: none; cursor: pointer; color: #444; font-size: 16px; padding: 4px; border-radius: 5px; transition: all .12s; }
+.del-btn:hover { color: #ef4444; background: rgba(239,68,68,.1); }
+.footer-bar {
+  background: var(--dark2); border-top: 1px solid var(--border); padding: 16px 20px;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;
+}
+.footer-stats { display: flex; align-items: center; gap: 28px; }
+.f-stat { display: flex; flex-direction: column; gap: 2px; }
+.f-stat-lbl { font-size: 9px; color: #555; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+.f-stat-val { font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 800; color: var(--primary); }
+.f-stat-val.green { color: #4ade80; }
+.f-stat-val.red { color: #ef4444; }
+.f-divider { width: 1px; height: 40px; background: var(--border); }
+.input-recebido {
+  background: var(--dark); border: 1px solid #2a2a2a; border-radius: 9px; color: #fff;
+  font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 800;
+  padding: 5px 12px; width: 130px; outline: none; transition: border-color .2s;
+}
+.input-recebido:focus { border-color: var(--primary); }
+.input-recebido:read-only { color: #666; cursor: default; }
+.btn-pdf {
+  background: var(--primary); color: #000; border: none; border-radius: 10px;
+  padding: 12px 24px; cursor: pointer; font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+  transition: all .15s; white-space: nowrap;
+}
+.btn-pdf:hover { background: var(--primary-dark); color: #fff; }
+.metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 18px; }
+.metric-card { background: var(--dark3); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; }
+.metric-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px; }
+.metric-val { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 800; color: #fff; }
+.metric-val.orange { color: var(--primary); }
+.metric-val.green { color: #4ade80; }
+.metric-val.yellow { color: #facc15; }
+.chart-panel { background: var(--dark3); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px; margin-bottom: 14px; }
+.chart-title { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 600; color: #ccc; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
+.chart-wrap { position: relative; width: 100%; height: 220px; }
+.chart-legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 11px; color: var(--muted); margin-bottom: 10px; }
+.chart-legend span { display: flex; align-items: center; gap: 5px; }
+.ldot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+.empty-state { text-align: center; padding: 40px 20px; color: #444; font-size: 13px; }
+.admin-only { display: none; }
+@media print {
+  body::before, .header-nav, .tabs, #tab-dashboard { display: none !important; }
+  .tab-section { display: block !important; }
+  body { background: white !important; color: #000 !important; }
+  .form-panel { display: none !important; }
+  .table-wrap, table, tbody td, thead th { color: #000 !important; background: white !important; }
+  .footer-bar { background: #f5f5f5 !important; color: #000 !important; }
+}
+@media (max-width: 700px) {
+  .form-grid { grid-template-columns: auto 1fr; }
+  .form-grid > :nth-child(3), .form-grid > :nth-child(4) { display: none; }
+  .footer-stats { gap: 16px; }
+  .f-stat-val { font-size: 18px; }
+  .metrics-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
 </head>
 <body>
-    <div id="login-screen">
-        <div class="login-box">
-            <h2 style="color: var(--primary); letter-spacing: 2px;">FINANCEIRO VÍDEOS</h2>
-            <input type="password" id="input-senha" style="width:100%; padding:12px; border-radius:8px; background:#1a1a1a; color:#fff; text-align:center; border: 1px solid #333;" placeholder="CHAVE DE ACESSO">
-            <button class="btn-entrar" onclick="login()">Entrar</button>
-        </div>
+
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-title">FINANCEIRO<br>VÍDEOS</div>
+    <div class="login-sub">Raphael Designer</div>
+    <input type="password" id="input-senha" class="login-input" placeholder="CHAVE DE ACESSO" onkeydown="if(event.key==='Enter')login()">
+    <button class="btn-entrar" onclick="login()">Entrar</button>
+  </div>
+</div>
+
+<div id="main-system">
+  <div class="header-nav">
+    <button class="nav-btn orange admin-only" onclick="document.getElementById('in-bg').click()">+ Fundo</button>
+    <button class="nav-btn orange admin-only" onclick="document.getElementById('in-bn').click()">+ Banner</button>
+    <button class="nav-btn gray admin-only" onclick="removerVisual('bg')">Rem. Fundo</button>
+    <button class="nav-btn gray admin-only" onclick="removerVisual('bn')">Rem. Banner</button>
+    <input type="file" id="in-bg" hidden accept="image/*" onchange="processarVisual('bg',this)">
+    <input type="file" id="in-bn" hidden accept="image/*" onchange="processarVisual('bn',this)">
+    <button class="nav-btn red" onclick="sair()">Sair</button>
+  </div>
+
+  <div class="header-banner" id="banner-visual"></div>
+
+  <div class="container">
+    <div class="meses-container" id="carrossel"></div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('lancamentos',this)">Lançamentos</div>
+      <div class="tab" id="tab-dashboard" onclick="switchTab('dashboard',this)">Dashboard</div>
     </div>
-    <div id="main-system">
-        <div class="header-nav">
-            <button class="btn-config admin-only" onclick="document.getElementById('in-bg').click()">+ FUNDO</button>
-            <button class="btn-config admin-only" onclick="document.getElementById('in-bn').click()">+ BANNER</button>
-            <button class="btn-remove admin-only" onclick="removerVisual('bg')">REM. FUNDO</button>
-            <button class="btn-remove admin-only" onclick="removerVisual('bn')">REM. BANNER</button>
-            <input type="file" id="in-bg" hidden onchange="processarVisual('bg', this)">
-            <input type="file" id="in-bn" hidden onchange="processarVisual('bn', this)">
-            <button class="btn-sair" onclick="sair()">SAIR</button>
-        </div>
-        <div class="header-banner" id="banner-visual"></div>
-        <div class="container">
-            <div class="meses-container" id="carrossel"></div>
-            <div class="card admin-only" id="form-cadastro">
-                <h3 style="color: var(--primary); margin-top:0;">LANÇAR NOVO VÍDEO - <span id="txt-mes"></span></h3>
-                <div style="display: grid; grid-template-columns: 1fr 2fr 1fr 1fr; gap: 12px; align-items: end;">
-                    <div><label style="font-size: 10px; font-weight: bold;">ARTE</label><input type="file" id="foto" style="font-size:10px; width: 100%;"></div>
-                    <input type="text" id="nome" placeholder="Nome do Vídeo" style="padding:12px; border-radius:8px; border:1px solid #ddd; font-weight: bold;">
-                    <input type="number" id="valor" placeholder="R$ Unitário" style="padding:12px; border-radius:8px; border:1px solid #ddd; font-weight: bold; color: var(--primary);">
-                    <input type="number" id="qtd" value="1" style="padding:12px; border-radius:8px; border:1px solid #ddd; text-align: center;">
-                </div>
-                <button class="btn-entrar" style="margin-top:20px;" onclick="salvar()">ADICIONAR À LISTA</button>
+
+    <div id="lancamentos" class="tab-section active">
+      <div class="form-panel admin-only" id="form-cadastro">
+        <div class="form-title">Lançar Novo Vídeo — <span id="txt-mes"></span></div>
+        <div class="form-grid">
+          <div class="upload-col">
+            <div class="upload-area" id="uploadPreview">
+              <span class="upload-icon">🖼</span>
+              <input type="file" id="foto" accept="image/*" onchange="previewFoto(this)">
             </div>
-            <div class="card" style="padding:0; overflow: hidden;">
-                <table>
-                    <thead><tr><th>Arte</th><th>Descrição</th><th>Valor Unitário</th><th style="text-align: center;">Qtd</th><th>Subtotal</th><th class="admin-only">Ação</th></tr></thead>
-                    <tbody id="lista"></tbody>
-                </table>
-                <div class="footer-total">
-                    <div style="display: flex; align-items: center; gap: 30px;">
-                        <div><span style="font-size:10px; color:#94a3b8;">TRABALHADO</span><p class="total-valor" id="total-geral">R$ 0,00</p></div>
-                        <div><span style="font-size:10px; color:#94a3b8;">RECEBIDO</span><br><input type="number" id="input-recebido" class="input-recebido" oninput="atualizarRecebidoManual()" readonly></div>
-                        <div style="border-left: 1px solid #333; padding-left: 30px;"><span style="font-size:10px; color:#94a3b8;">A RECEBER</span><p class="total-valor" id="total-pendente" style="color:#ef4444;">R$ 0,00</p></div>
-                    </div>
-                    <button onclick="window.print()" style="background:var(--primary); color:#000; border:none; padding:15px 30px; border-radius:10px; font-weight:bold; cursor:pointer;">GERAR PDF</button>
-                </div>
-            </div>
+            <span class="upload-hint">Arte</span>
+          </div>
+          <div class="f-group">
+            <span class="f-label">Nome do Vídeo / Cliente</span>
+            <input type="text" id="nome" class="f-input" placeholder="Ex: TED PAGODEIRO 01/02">
+          </div>
+          <div class="f-group">
+            <span class="f-label">R$ Unitário</span>
+            <input type="number" id="valor" class="f-input" placeholder="50.00" min="0" step="0.01">
+          </div>
+          <div class="f-group">
+            <span class="f-label">Qtd</span>
+            <input type="number" id="qtd" class="f-input" value="1" min="1" style="text-align:center">
+          </div>
         </div>
+        <div class="form-row2">
+          <div class="f-group">
+            <span class="f-label">Status</span>
+            <select id="status-novo" class="f-input">
+              <option value="pendente">Pendente</option>
+              <option value="pago">Pago</option>
+            </select>
+          </div>
+          <div></div>
+        </div>
+        <button class="btn-add" onclick="salvar()">Adicionar à Lista</button>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:60px">Arte</th>
+              <th>Descrição</th>
+              <th>Valor Unit.</th>
+              <th style="text-align:center">Qtd</th>
+              <th>Subtotal</th>
+              <th>Status</th>
+              <th class="admin-only" style="width:40px"></th>
+            </tr>
+          </thead>
+          <tbody id="lista">
+            <tr><td colspan="7" class="empty-state">Nenhum vídeo lançado neste mês.</td></tr>
+          </tbody>
+        </table>
+        <div class="footer-bar">
+          <div class="footer-stats">
+            <div class="f-stat">
+              <span class="f-stat-lbl">Trabalhado</span>
+              <span class="f-stat-val" id="total-geral">R$ 0,00</span>
+            </div>
+            <div class="f-divider"></div>
+            <div class="f-stat">
+              <span class="f-stat-lbl">Recebido</span>
+              <input type="number" id="input-recebido" class="input-recebido" value="0" min="0" step="0.01" readonly oninput="atualizarRecebidoManual()">
+            </div>
+            <div class="f-divider"></div>
+            <div class="f-stat">
+              <span class="f-stat-lbl">A Receber</span>
+              <span class="f-stat-val red" id="total-pendente">R$ 0,00</span>
+            </div>
+          </div>
+          <button class="btn-pdf" onclick="window.print()">🖨 Gerar PDF</button>
+        </div>
+      </div>
     </div>
+
+    <div id="dashboard" class="tab-section">
+      <div class="metrics-grid">
+        <div class="metric-card"><div class="metric-lbl">Total Geral (Ano)</div><div class="metric-val orange" id="d-total">R$ 0,00</div></div>
+        <div class="metric-card"><div class="metric-lbl">Total Pago</div><div class="metric-val green" id="d-pago">R$ 0,00</div></div>
+        <div class="metric-card"><div class="metric-lbl">A Receber</div><div class="metric-val yellow" id="d-pendente">R$ 0,00</div></div>
+        <div class="metric-card"><div class="metric-lbl">Vídeos este Mês</div><div class="metric-val" id="d-qtd">0</div></div>
+        <div class="metric-card"><div class="metric-lbl">Ticket Médio</div><div class="metric-val orange" id="d-ticket">R$ 0,00</div></div>
+        <div class="metric-card"><div class="metric-lbl">Melhor Mês</div><div class="metric-val" id="d-melhor">—</div></div>
+      </div>
+      <div class="chart-panel">
+        <div class="chart-title">Receita por Mês</div>
+        <div class="chart-legend">
+          <span><span class="ldot" style="background:#ff6a00"></span>Trabalhado</span>
+          <span><span class="ldot" style="background:#4ade80"></span>Pago</span>
+          <span><span class="ldot" style="background:#facc15"></span>Pendente</span>
+        </div>
+        <div class="chart-wrap"><canvas id="chartMes"></canvas></div>
+      </div>
+      <div class="chart-panel">
+        <div class="chart-title">Distribuição por Tipo de Serviço</div>
+        <div class="chart-legend" id="legendTipo"></div>
+        <div class="chart-wrap" style="height:180px"><canvas id="chartTipo"></canvas></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
-    const firebaseConfig = { apiKey: "AiZaSyA1B1GTBcJxKL9FK-ikA9mr-kOtaWJ0lxU", authDomain: "financeiro-videos-raphael.firebaseapp.com", databaseURL: "https://financeiro-videos-raphael-default-rtdb.firebaseio.com", projectId: "financeiro-videos-raphael", storageBucket: "financeiro-videos-raphael.firebasestorage.app", messagingSenderId: "94002509090", appId: "1:94002509090:web:f27917dd912bda7364e17b" };
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-    const mesesNomes = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-    let mesAtivo = new Date().getMonth();
-    let isAdmin = false;
-    window.onload = () => { const chaveSalva = localStorage.getItem('chave_financeiro'); if(chaveSalva) { document.getElementById('input-senha').value = chaveSalva; login(true); } };
-    function login(auto = false) {
-        const senha = document.getElementById('input-senha').value;
-        if(senha === "MIGUEL22012019") { isAdmin = true; localStorage.setItem('chave_financeiro', senha); liberarAcesso(); }
-        else if(senha.toUpperCase() === "ARTECIA") { isAdmin = false; localStorage.setItem('chave_financeiro', senha); liberarAcesso(); }
-        else { if(!auto) alert("Chave incorreta!"); }
+const firebaseConfig = {
+  apiKey: "AiZaSyA1B1GTBcJxKL9FK-ikA9mr-kOtaWJ0lxU",
+  authDomain: "financeiro-videos-raphael.firebaseapp.com",
+  databaseURL: "https://financeiro-videos-raphael-default-rtdb.firebaseio.com",
+  projectId: "financeiro-videos-raphael",
+  storageBucket: "financeiro-videos-raphael.firebasestorage.app",
+  messagingSenderId: "94002509090",
+  appId: "1:94002509090:web:f27917dd912bda7364e17b"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+const MESES = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+const CORES_TIPO = ['#ff6a00','#4ade80','#60a5fa','#facc15','#f472b6','#a78bfa','#fb923c','#34d399'];
+
+let mesAtivo = new Date().getMonth();
+let isAdmin = false;
+let imgPreviewAtual = '';
+let chartMes = null, chartTipo = null;
+let dadosGlobais = {};
+
+const fmt = v => 'R$ ' + (v||0).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+window.onload = () => {
+  const salva = localStorage.getItem('chave_financeiro');
+  if (salva) { document.getElementById('input-senha').value = salva; login(true); }
+};
+
+function login(auto = false) {
+  const senha = document.getElementById('input-senha').value.trim();
+  if (senha === 'MIGUEL22012019') { isAdmin = true; localStorage.setItem('chave_financeiro', senha); liberarAcesso(); }
+  else if (senha.toUpperCase() === 'ARTECIA') { isAdmin = false; localStorage.setItem('chave_financeiro', senha); liberarAcesso(); }
+  else { if (!auto) alert('Chave incorreta!'); }
+}
+
+function sair() { localStorage.removeItem('chave_financeiro'); location.reload(); }
+
+function liberarAcesso() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('main-system').style.display = 'block';
+  if (isAdmin) {
+    document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
+    document.getElementById('input-recebido').readOnly = false;
+  }
+  ouvirDados();
+}
+
+function processarVisual(tipo, input) {
+  if (!input.files[0]) return;
+  const r = new FileReader();
+  r.onload = e => { localStorage.setItem(tipo === 'bg' ? 'custom_bg' : 'custom_bn', e.target.result); aplicarVisuais(); };
+  r.readAsDataURL(input.files[0]);
+}
+function removerVisual(tipo) { localStorage.removeItem(tipo === 'bg' ? 'custom_bg' : 'custom_bn'); aplicarVisuais(); }
+function aplicarVisuais() {
+  const bg = localStorage.getItem('custom_bg');
+  const bn = localStorage.getItem('custom_bn');
+  const bannerEl = document.getElementById('banner-visual');
+  document.body.style.backgroundImage = bg ? `url(${bg})` : 'none';
+  if (bn) { bannerEl.style.backgroundImage = `url(${bn})`; bannerEl.style.display = 'block'; }
+  else { bannerEl.style.display = 'none'; }
+}
+
+function previewFoto(input) {
+  const file = input.files[0]; if (!file) return;
+  const r = new FileReader();
+  r.onload = e => {
+    imgPreviewAtual = e.target.result;
+    const area = document.getElementById('uploadPreview');
+    area.innerHTML = `<img src="${imgPreviewAtual}" style="width:100%;height:100%;object-fit:cover;border-radius:7px"><input type="file" id="foto" accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer" onchange="previewFoto(this)">`;
+  };
+  r.readAsDataURL(file);
+}
+
+function ouvirDados() {
+  aplicarVisuais();
+  db.ref('financeiro').on('value', snap => {
+    dadosGlobais = snap.val() || {};
+    renderizarTudo(dadosGlobais);
+  });
+}
+
+function renderizarTudo(data) {
+  const demandas = data.demandas || {};
+  const recebidos = data.recebidos || {};
+  const statusMap = data.statusItens || {};
+
+  const car = document.getElementById('carrossel');
+  car.innerHTML = '';
+  MESES.forEach((m, i) => {
+    const total = Object.values(demandas).filter(d => d.mes == i).reduce((s, d) => s + d.valor * d.qtd, 0);
+    const el = document.createElement('div');
+    el.className = 'mes-card' + (i === mesAtivo ? ' active' : '');
+    el.innerHTML = `<div class="mes-card-label">Mês de</div><div class="mes-card-name">${m}</div><div class="mes-card-valor${total === 0 ? ' zero' : ''}">${fmt(total)}</div>`;
+    el.onclick = () => mudarMes(i);
+    car.appendChild(el);
+  });
+
+  document.getElementById('txt-mes').innerText = MESES[mesAtivo];
+
+  const lista = document.getElementById('lista');
+  const itensMes = Object.entries(demandas).filter(([, d]) => d.mes == mesAtivo);
+  lista.innerHTML = '';
+
+  if (!itensMes.length) {
+    lista.innerHTML = `<tr><td colspan="7" class="empty-state">Nenhum vídeo lançado em ${MESES[mesAtivo]}.</td></tr>`;
+  } else {
+    itensMes.forEach(([id, d]) => {
+      const sub = d.valor * d.qtd;
+      const st = statusMap[id] || 'pendente';
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${d.foto ? `<img src="${d.foto}" class="img-preview">` : `<div class="img-placeholder">🖼</div>`}</td>
+        <td><span class="video-name">${d.nome}</span></td>
+        <td>${fmt(d.valor)}</td>
+        <td style="text-align:center">
+          <div class="qty-ctrl" style="justify-content:center">
+            ${isAdmin ? `<button class="btn-qty" onclick="ajustarQtd('${id}',-1)">−</button>` : ''}
+            <span class="qty-val">${d.qtd}</span>
+            ${isAdmin ? `<button class="btn-qty" onclick="ajustarQtd('${id}',1)">+</button>` : ''}
+          </div>
+        </td>
+        <td><strong>${fmt(sub)}</strong></td>
+        <td><span class="badge badge-${st}" onclick="${isAdmin ? `toggleStatus('${id}','${st}')` : ''}" title="${isAdmin ? 'Clique para alternar' : ''}">${st === 'pago' ? '✓ Pago' : '⏳ Pendente'}</span></td>
+        ${isAdmin ? `<td class="admin-only"><button class="del-btn" onclick="excluir('${id}')">✕</button></td>` : '<td></td>'}
+      `;
+      lista.appendChild(tr);
+    });
+  }
+
+  const totalMesVal = itensMes.reduce((s, [, d]) => s + d.valor * d.qtd, 0);
+  const recVal = recebidos[mesAtivo] || 0;
+  document.getElementById('total-geral').innerText = fmt(totalMesVal);
+  document.getElementById('input-recebido').value = recVal;
+  document.getElementById('total-pendente').innerText = fmt(Math.max(0, totalMesVal - recVal));
+
+  renderDashboard(demandas, recebidos, statusMap);
+}
+
+function renderDashboard(demandas, recebidos, statusMap) {
+  const todos = Object.entries(demandas);
+  const totalAno = todos.reduce((s, [, d]) => s + d.valor * d.qtd, 0);
+  const totalPago = todos.filter(([id]) => (statusMap[id] || 'pendente') === 'pago').reduce((s, [, d]) => s + d.valor * d.qtd, 0);
+  const totalPend = Math.max(0, totalAno - totalPago);
+  const qtdMes = todos.filter(([, d]) => d.mes == mesAtivo).length;
+  const ticket = todos.length ? totalAno / todos.length : 0;
+
+  let melhorMes = '—', melhorVal = 0;
+  MESES.forEach((m, i) => {
+    const v = todos.filter(([, d]) => d.mes == i).reduce((s, [, d]) => s + d.valor * d.qtd, 0);
+    if (v > melhorVal) { melhorVal = v; melhorMes = m; }
+  });
+
+  document.getElementById('d-total').innerText = fmt(totalAno);
+  document.getElementById('d-pago').innerText = fmt(totalPago);
+  document.getElementById('d-pendente').innerText = fmt(totalPend);
+  document.getElementById('d-qtd').innerText = qtdMes;
+  document.getElementById('d-ticket').innerText = fmt(ticket);
+  document.getElementById('d-melhor').innerText = melhorMes;
+
+  const labels = MESES.map(m => m.slice(0, 3));
+  const trabalhado = MESES.map((_, i) => parseFloat(todos.filter(([, d]) => d.mes == i).reduce((s, [, d]) => s + d.valor * d.qtd, 0).toFixed(2)));
+  const pago = MESES.map((_, i) => parseFloat(todos.filter(([id, d]) => d.mes == i && (statusMap[id] || 'pendente') === 'pago').reduce((s, [, d]) => s + d.valor * d.qtd, 0).toFixed(2)));
+  const pendente = trabalhado.map((t, i) => parseFloat(Math.max(0, t - pago[i]).toFixed(2)));
+
+  if (chartMes) chartMes.destroy();
+  chartMes = new Chart(document.getElementById('chartMes'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Trabalhado', data: trabalhado, backgroundColor: '#ff6a00', borderRadius: 4 },
+        { label: 'Pago', data: pago, backgroundColor: '#4ade80', borderRadius: 4 },
+        { label: 'Pendente', data: pendente, backgroundColor: '#facc15', borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#666', autoSkip: false }, grid: { color: 'rgba(255,255,255,.04)' } },
+        y: { ticks: { color: '#666', callback: v => 'R$' + v }, grid: { color: 'rgba(255,255,255,.04)' } }
+      }
     }
-    function sair() { localStorage.removeItem('chave_financeiro'); location.reload(); }
-    function processarVisual(tipo, input) { if(!input.files[0]) return; const reader = new FileReader(); reader.onload = (e) => { localStorage.setItem(tipo === 'bg' ? 'custom_bg' : 'custom_bn', e.target.result); ouvirDados(); }; reader.readAsDataURL(input.files[0]); }
-    function removerVisual(tipo) { localStorage.removeItem(tipo === 'bg' ? 'custom_bg' : 'custom_bn'); ouvirDados(); }
-    function liberarAcesso() { document.getElementById('login-screen').style.display = 'none'; document.getElementById('main-system').style.display = 'block'; if(isAdmin) { document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block'); document.getElementById('input-recebido').readOnly = false; } ouvirDados(); }
-    function ouvirDados() { 
-        const bg = localStorage.getItem('custom_bg'); const bn = localStorage.getItem('custom_bn'); const bannerEl = document.getElementById('banner-visual');
-        document.body.style.backgroundImage = bg ? `url(${bg})` : 'none';
-        if(bn) { bannerEl.style.backgroundImage = `url(${bn})`; bannerEl.style.display = 'block'; } else { bannerEl.style.display = 'none'; }
-        database.ref('financeiro').on('value', (snapshot) => renderizarTudo(snapshot.val() || {})); 
-    }
-    function renderizarTudo(data) {
-        const car = document.getElementById('carrossel'), list = document.getElementById('lista'); car.innerHTML = ''; list.innerHTML = '';
-        document.getElementById('txt-mes').innerText = mesesNomes[mesAtivo];
-        let sTotalMes = 0; const demandas = data.demandas || {}, recebidos = data.recebidos || {};
-        mesesNomes.forEach((m, i) => {
-            let totalM = 0; Object.values(demandas).filter(d => d.mes == i).forEach(d => totalM += (d.valor * d.qtd));
-            car.innerHTML += `<div class="mes-card ${i==mesAtivo?'active':''}" onclick="mudarMes(${i})">Mês de<br><strong>${m}</strong><br><span style="font-size:10px; color:var(--primary)">R$ ${totalM.toFixed(2)}</span></div>`;
-        });
-        Object.entries(demandas).filter(([id, d]) => d.mes == mesAtivo).forEach(([id, d]) => {
-            let sub = d.valor * d.qtd; sTotalMes += sub;
-            list.innerHTML += `<tr><td><img src="${d.foto||''}" class="img-preview" style="display:${d.foto?'block':'none'}"></td><td><strong>${d.nome}</strong></td><td>R$ ${d.valor.toFixed(2)}</td><td style="text-align:center;">${isAdmin ? `<button class="btn-qty" onclick="ajustarQtd('${id}', -1)">-</button>` : ''}<span style="margin:0 10px; font-weight:bold;">${d.qtd}</span>${isAdmin ? `<button class="btn-qty" onclick="ajustarQtd('${id}', 1)">+</button>` : ''}</td><td><strong>R$ ${sub.toFixed(2)}</strong></td><td class="admin-only" style="display:${isAdmin?'table-cell':'none'}"><button onclick="excluir('${id}')" style="border:none; background:none; cursor:pointer;">❌</button></td></tr>`;
-        });
-        document.getElementById('total-geral').innerText = `R$ ${sTotalMes.toFixed(2)}`;
-        const valorRec = recebidos[mesAtivo] || 0; document.getElementById('input-recebido').value = valorRec;
-        document.getElementById('total-pendente').innerText = `R$ ${(sTotalMes - valorRec).toFixed(2)}`;
-    }
-    function ajustarQtd(id, delta) { database.ref(`financeiro/demandas/${id}`).once('value', (snapshot) => { const item = snapshot.val(); if(item) { database.ref(`financeiro/demandas/${id}/qtd`).set(Math.max(1, item.qtd + delta)); } }); }
-    function salvar() { if(!isAdmin) return; const n = document.getElementById('nome').value, v = parseFloat(document.getElementById('valor').value), q = parseInt(document.getElementById('qtd').value), f = document.getElementById('foto').files[0]; if(!n || isNaN(v)) return alert("Preencha os dados!"); const enviar = (img) => { database.ref('financeiro/demandas').push({ nome: n.toUpperCase(), valor: v, qtd: q, mes: mesAtivo, foto: img }); document.getElementById('nome').value = ''; document.getElementById('valor').value = ''; }; if(f) { const r = new FileReader(); r.onload = (e) => enviar(e.target.result); r.readAsDataURL(f); } else enviar(''); }
-    function atualizarRecebidoManual() { if(!isAdmin) return; database.ref(`financeiro/recebidos/${mesAtivo}`).set(parseFloat(document.getElementById('input-recebido').value) || 0); }
-    function mudarMes(i) { mesAtivo = i; ouvirDados(); }
-    function excluir(id) { if(isAdmin && confirm("Remover?")) database.ref(`financeiro/demandas/${id}`).remove(); }
+  });
+
+  const tiposMap = {};
+  todos.forEach(([, d]) => {
+    const tipo = d.nome ? d.nome.split(' ')[0] : 'Outros';
+    tiposMap[tipo] = (tiposMap[tipo] || 0) + d.valor * d.qtd;
+  });
+  const tLabels = Object.keys(tiposMap);
+  const tData = tLabels.map(t => parseFloat(tiposMap[t].toFixed(2)));
+
+  if (chartTipo) chartTipo.destroy();
+  chartTipo = new Chart(document.getElementById('chartTipo'), {
+    type: 'doughnut',
+    data: { labels: tLabels, datasets: [{ data: tData, backgroundColor: CORES_TIPO.slice(0, tLabels.length) }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+  });
+
+  document.getElementById('legendTipo').innerHTML = tLabels.map((t, i) =>
+    `<span><span class="ldot" style="background:${CORES_TIPO[i]}"></span>${t}: ${fmt(tiposMap[t])}</span>`
+  ).join('');
+}
+
+function salvar() {
+  if (!isAdmin) return;
+  const n = document.getElementById('nome').value.trim();
+  const v = parseFloat(document.getElementById('valor').value);
+  const q = parseInt(document.getElementById('qtd').value) || 1;
+  const st = document.getElementById('status-novo').value;
+  if (!n || isNaN(v) || v <= 0) return alert('Preencha o nome e o valor!');
+  const enviar = img => {
+    const ref = db.ref('financeiro/demandas').push();
+    ref.set({ nome: n.toUpperCase(), valor: v, qtd: q, mes: mesAtivo, foto: img });
+    if (st === 'pago') db.ref(`financeiro/statusItens/${ref.key}`).set('pago');
+    document.getElementById('nome').value = '';
+    document.getElementById('valor').value = '';
+    document.getElementById('qtd').value = '1';
+    imgPreviewAtual = '';
+    document.getElementById('uploadPreview').innerHTML = `<span class="upload-icon">🖼</span><input type="file" id="foto" accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer" onchange="previewFoto(this)">`;
+  };
+  if (imgPreviewAtual) enviar(imgPreviewAtual);
+  else enviar('');
+}
+
+function ajustarQtd(id, delta) {
+  db.ref(`financeiro/demandas/${id}`).once('value', snap => {
+    const item = snap.val();
+    if (item) db.ref(`financeiro/demandas/${id}/qtd`).set(Math.max(1, item.qtd + delta));
+  });
+}
+
+function toggleStatus(id, atual) {
+  if (!isAdmin) return;
+  const novo = atual === 'pago' ? 'pendente' : 'pago';
+  db.ref(`financeiro/statusItens/${id}`).set(novo);
+}
+
+function atualizarRecebidoManual() {
+  if (!isAdmin) return;
+  const val = parseFloat(document.getElementById('input-recebido').value) || 0;
+  db.ref(`financeiro/recebidos/${mesAtivo}`).set(val);
+}
+
+function excluir(id) {
+  if (!isAdmin || !confirm('Remover este item?')) return;
+  db.ref(`financeiro/demandas/${id}`).remove();
+  db.ref(`financeiro/statusItens/${id}`).remove();
+}
+
+function mudarMes(i) {
+  mesAtivo = i;
+  renderizarTudo(dadosGlobais);
+  setTimeout(() => {
+    const cards = document.querySelectorAll('.mes-card');
+    if (cards[i]) cards[i].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  }, 50);
+}
+
+function switchTab(id, el) {
+  document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+}
 </script>
 </body>
 </html>
